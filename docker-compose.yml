@@ -4,8 +4,8 @@ services:
     container_name: rental-marketplace
     environment:
       POSTGRES_DB: rental_marketplace
-      POSTGRES_USER: rental_app
-      POSTGRES_PASSWORD: rental_app
+      POSTGRES_USER: marketplace_admin
+      POSTGRES_PASSWORD: Qz7mPk2xVr9L
     ports:
       - "5434:5432"
     volumes:
@@ -13,7 +13,7 @@ services:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rental_app -d rental_marketplace"]
+      test: ["CMD-SHELL", "pg_isready -U marketplace_admin -d rental_marketplace"]
       interval: 5s
       timeout: 5s
       retries: 5
