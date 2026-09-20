@@ -17,7 +17,12 @@ public class User implements Displayable {
 
   /** Используется при загрузке уже существующего пользователя (из БД или in-memory хранилища). */
   public User(
-      Integer id, String fullName, String email, String phone, UserRole role, LocalDateTime createdAt) {
+      Integer id,
+      String fullName,
+      String email,
+      String phone,
+      UserRole role,
+      LocalDateTime createdAt) {
     this.id = id;
     this.fullName = fullName;
     this.email = email;

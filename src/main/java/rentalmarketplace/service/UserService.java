@@ -30,8 +30,7 @@ public class UserService {
   public User getUserById(Integer id) {
     return userRepository
         .findById(id)
-        .orElseThrow(
-            () -> new EntityNotFoundException("Пользователь с id=" + id + " не найден"));
+        .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + id + " не найден"));
   }
 
   public List<User> getAllUsers() {
