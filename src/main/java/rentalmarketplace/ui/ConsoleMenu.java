@@ -12,17 +12,21 @@ import java.util.Scanner;
 import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.exception.DatabaseAccessException;
 import rentalmarketplace.exception.EntityNotFoundException;
+import rentalmarketplace.model.Listing;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
+import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.UserService;
 import rentalmarketplace.util.DatabaseManager;
 
 public class ConsoleMenu {
   protected final Scanner scanner = new Scanner(System.in);
   private final UserService userService;
+  private final ListingService listingService;
 
-  public ConsoleMenu(UserService userService) {
+  public ConsoleMenu(UserService userService, ListingService listingService) {
     this.userService = userService;
+    this.listingService = listingService;
   }
 
   public void run() {
@@ -33,7 +37,7 @@ public class ConsoleMenu {
       try {
         switch (choice) {
           case 1 -> manageUsers();
-          case 2 -> notImplemented("Объекты аренды");
+          case 2 -> manageListings();
           case 3 -> notImplemented("Заявки на аренду");
           case 4 -> notImplemented("Поиск");
           case 5 -> notImplemented("Фильтрация");
@@ -149,6 +153,68 @@ public class ConsoleMenu {
         System.out.println("Ошибка: роль должна быть RENTER, OWNER или ADMIN");
       }
     }
+  }
+
+  private void manageListings() {
+    boolean back = false;
+    while (!back) {
+      System.out.println("--- Объекты аренды ---");
+      System.out.println("1. Показать все");
+      System.out.println("2. Найти по id");
+      System.out.println("3. Создать");
+      System.out.println("4. Обновить");
+      System.out.println("5. Удалить");
+      System.out.println("0. Назад");
+      int choice = readInt("Выберите действие: ");
+      switch (choice) {
+        case 1 -> printListings(listingService.getAllListings());
+        case 2 -> printListings(List.of(listingService.getListingById(readInt("id: "))));
+        case 3 -> createListing();
+        case 4 -> updateListing();
+        case 5 -> deleteListing();
+        case 0 -> back = true;
+        default -> System.out.println("Неизвестный пункт меню");
+      }
+    }
+  }
+
+  private void createListing() {
+    int ownerId = readInt("id владельца: ");
+    String title = readString("Название: ");
+    String description = readString("Описание: ");
+    BigDecimal pricePerDay = readBigDecimal("Цена за день: ");
+    String category = readString("Категория: ");
+    Listing created =
+        listingService.createListing(ownerId, title, description, pricePerDay, category);
+    System.out.println("Создан объект аренды: " + created.toTableRow());
+  }
+
+  private void updateListing() {
+    int id = readInt("id объекта для обновления: ");
+    int ownerId = readInt("id владельца: ");
+    String title = readString("Новое название: ");
+    String description = readString("Новое описание: ");
+    BigDecimal pricePerDay = readBigDecimal("Новая цена за день: ");
+    String category = readString("Новая категория: ");
+    boolean available = readString("Доступен (да/нет): ").equalsIgnoreCase("да");
+    Listing updated =
+        listingService.updateListing(
+            id, ownerId, title, description, pricePerDay, category, available);
+    System.out.println("Обновлено: " + updated.toTableRow());
+  }
+
+  private void deleteListing() {
+    int id = readInt("id объекта для удаления: ");
+    listingService.deleteListing(id);
+    System.out.println("Объект аренды удалён");
+  }
+
+  private void printListings(List<Listing> listings) {
+    if (listings.isEmpty()) {
+      System.out.println("Объектов аренды нет");
+      return;
+    }
+    listings.forEach(listing -> System.out.println(listing.toTableRow()));
   }
 
   private void notImplemented(String section) {
