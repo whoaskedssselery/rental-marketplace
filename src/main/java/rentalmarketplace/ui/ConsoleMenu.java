@@ -13,9 +13,12 @@ import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.exception.DatabaseAccessException;
 import rentalmarketplace.exception.EntityNotFoundException;
 import rentalmarketplace.model.Listing;
+import rentalmarketplace.model.RentalRequest;
+import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
 import rentalmarketplace.service.ListingService;
+import rentalmarketplace.service.RentalRequestService;
 import rentalmarketplace.service.UserService;
 import rentalmarketplace.util.DatabaseManager;
 
@@ -23,10 +26,15 @@ public class ConsoleMenu {
   protected final Scanner scanner = new Scanner(System.in);
   private final UserService userService;
   private final ListingService listingService;
+  private final RentalRequestService rentalRequestService;
 
-  public ConsoleMenu(UserService userService, ListingService listingService) {
+  public ConsoleMenu(
+      UserService userService,
+      ListingService listingService,
+      RentalRequestService rentalRequestService) {
     this.userService = userService;
     this.listingService = listingService;
+    this.rentalRequestService = rentalRequestService;
   }
 
   public void run() {
@@ -38,7 +46,7 @@ public class ConsoleMenu {
         switch (choice) {
           case 1 -> manageUsers();
           case 2 -> manageListings();
-          case 3 -> notImplemented("Заявки на аренду");
+          case 3 -> manageRentalRequests();
           case 4 -> notImplemented("Поиск");
           case 5 -> notImplemented("Фильтрация");
           case 6 -> notImplemented("Сортировка");
@@ -258,6 +266,82 @@ public class ConsoleMenu {
         return LocalDate.parse(input);
       } catch (DateTimeParseException e) {
         System.out.println("Ошибка: формат даты гггг-мм-дд, например 2026-09-15");
+      }
+    }
+  }
+
+  private void manageRentalRequests() {
+    boolean back = false;
+    while (!back) {
+      System.out.println("--- Заявки на аренду ---");
+      System.out.println("1. Показать все");
+      System.out.println("2. Найти по id");
+      System.out.println("3. Создать");
+      System.out.println("4. Изменить даты");
+      System.out.println("5. Сменить статус");
+      System.out.println("6. Удалить");
+      System.out.println("0. Назад");
+      int choice = readInt("Выберите действие: ");
+      switch (choice) {
+        case 1 -> printRentalRequests(rentalRequestService.getAll());
+        case 2 -> printRentalRequests(List.of(rentalRequestService.getById(readInt("id: "))));
+        case 3 -> createRentalRequest();
+        case 4 -> updateRentalRequestDates();
+        case 5 -> changeRentalRequestStatus();
+        case 6 -> deleteRentalRequest();
+        case 0 -> back = true;
+        default -> System.out.println("Неизвестный пункт меню");
+      }
+    }
+  }
+
+  private void createRentalRequest() {
+    int listingId = readInt("id объекта: ");
+    int renterId = readInt("id арендатора: ");
+    LocalDate startDate = readDate("Дата начала (гггг-мм-дд): ");
+    LocalDate endDate = readDate("Дата окончания (гггг-мм-дд): ");
+    RentalRequest created = rentalRequestService.create(listingId, renterId, startDate, endDate);
+    System.out.println("Создана заявка: " + created.toTableRow());
+  }
+
+  private void updateRentalRequestDates() {
+    int id = readInt("id заявки: ");
+    LocalDate startDate = readDate("Новая дата начала (гггг-мм-дд): ");
+    LocalDate endDate = readDate("Новая дата окончания (гггг-мм-дд): ");
+    RentalRequest updated = rentalRequestService.updateDates(id, startDate, endDate);
+    System.out.println("Обновлено: " + updated.toTableRow());
+  }
+
+  private void changeRentalRequestStatus() {
+    int id = readInt("id заявки: ");
+    RentalRequestStatus status = readRentalRequestStatus();
+    RentalRequest updated = rentalRequestService.changeStatus(id, status);
+    System.out.println("Обновлено: " + updated.toTableRow());
+  }
+
+  private void deleteRentalRequest() {
+    int id = readInt("id заявки для удаления: ");
+    rentalRequestService.delete(id);
+    System.out.println("Заявка удалена");
+  }
+
+  private void printRentalRequests(List<RentalRequest> requests) {
+    if (requests.isEmpty()) {
+      System.out.println("Заявок нет");
+      return;
+    }
+    requests.forEach(request -> System.out.println(request.toTableRow()));
+  }
+
+  private RentalRequestStatus readRentalRequestStatus() {
+    while (true) {
+      String input =
+          readString("Статус (NEW/CONFIRMED/ACTIVE/COMPLETED/CANCELLED/REJECTED): ").toUpperCase();
+      try {
+        return RentalRequestStatus.valueOf(input);
+      } catch (IllegalArgumentException e) {
+        System.out.println(
+            "Ошибка: статус должен быть NEW, CONFIRMED, ACTIVE, COMPLETED, CANCELLED или REJECTED");
       }
     }
   }
