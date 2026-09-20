@@ -27,7 +27,8 @@ class UserServiceTest {
   @Test
   void createUser_withValidData_savesAndReturnsUserWithGeneratedId() {
     User created =
-        userService.createUser("Иван Петров", "ivan@example.com", "+7 900 000-00-00", UserRole.OWNER);
+        userService.createUser(
+            "Иван Петров", "ivan@example.com", "+7 900 000-00-00", UserRole.OWNER);
 
     assertNotNull(created.getId());
     assertNotNull(created.getCreatedAt());
@@ -84,7 +85,11 @@ class UserServiceTest {
 
     User updated =
         userService.updateUser(
-            created.getId(), "Иван Петров-Сидоров", "ivan@example.com", "+7 900 111-11-11", UserRole.OWNER);
+            created.getId(),
+            "Иван Петров-Сидоров",
+            "ivan@example.com",
+            "+7 900 111-11-11",
+            UserRole.OWNER);
 
     assertEquals("Иван Петров-Сидоров", updated.getFullName());
     assertEquals(UserRole.OWNER, updated.getRole());

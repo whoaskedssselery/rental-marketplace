@@ -102,8 +102,7 @@ public class UserRepositoryJdbc implements UserRepository {
       statement.executeUpdate();
       return user;
     } catch (SQLException e) {
-      throw new DatabaseAccessException(
-          "Не удалось обновить пользователя: " + e.getMessage(), e);
+      throw new DatabaseAccessException("Не удалось обновить пользователя: " + e.getMessage(), e);
     }
   }
 
