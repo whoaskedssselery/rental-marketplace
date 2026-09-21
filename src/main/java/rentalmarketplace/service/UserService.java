@@ -12,6 +12,9 @@ import rentalmarketplace.repository.UserRepository;
 public class UserService {
   private static final Pattern EMAIL_PATTERN =
       Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
+  private static final int FULL_NAME_MAX_LENGTH = 150;
+  private static final int EMAIL_MAX_LENGTH = 150;
+  private static final int PHONE_MAX_LENGTH = 30;
 
   private final UserRepository userRepository;
 
@@ -22,6 +25,7 @@ public class UserService {
   public User createUser(String fullName, String email, String phone, UserRole role) {
     validateFullName(fullName);
     validateEmail(email);
+    validatePhone(phone);
     checkEmailIsFree(email, null);
     User user = new User(fullName.trim(), email.trim(), phone, role);
     return userRepository.save(user);
@@ -41,6 +45,7 @@ public class UserService {
     User existing = getUserById(id);
     validateFullName(fullName);
     validateEmail(email);
+    validatePhone(phone);
     checkEmailIsFree(email, id);
     existing.setFullName(fullName.trim());
     existing.setEmail(email.trim());
@@ -58,11 +63,26 @@ public class UserService {
     if (fullName == null || fullName.isBlank()) {
       throw new BusinessRuleException("Имя пользователя не может быть пустым");
     }
+    if (fullName.trim().length() > FULL_NAME_MAX_LENGTH) {
+      throw new BusinessRuleException(
+          "Имя пользователя не может быть длиннее " + FULL_NAME_MAX_LENGTH + " символов");
+    }
   }
 
   private void validateEmail(String email) {
     if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
       throw new BusinessRuleException("Некорректный формат email: " + email);
+    }
+    if (email.trim().length() > EMAIL_MAX_LENGTH) {
+      throw new BusinessRuleException(
+          "Email не может быть длиннее " + EMAIL_MAX_LENGTH + " символов");
+    }
+  }
+
+  private void validatePhone(String phone) {
+    if (phone != null && phone.length() > PHONE_MAX_LENGTH) {
+      throw new BusinessRuleException(
+          "Телефон не может быть длиннее " + PHONE_MAX_LENGTH + " символов");
     }
   }
 

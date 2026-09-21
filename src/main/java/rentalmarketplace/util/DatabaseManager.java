@@ -1,42 +1,64 @@
 package rentalmarketplace.util;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 import rentalmarketplace.exception.DatabaseAccessException;
 
 public final class DatabaseManager {
-  private static final Properties CONFIG = loadConfig();
+  private static final Map<String, String> DOT_ENV = loadDotEnv();
 
   private DatabaseManager() {}
 
-  private static Properties loadConfig() {
-    Properties properties = new Properties();
-    try (InputStream input =
-        DatabaseManager.class.getClassLoader().getResourceAsStream("application.properties")) {
-      if (input == null) {
-        throw new IllegalStateException("Файл application.properties не найден в classpath");
-      }
-      properties.load(input);
-    } catch (IOException e) {
-      throw new IllegalStateException("Не удалось прочитать application.properties", e);
+  private static Map<String, String> loadDotEnv() {
+    Map<String, String> values = new HashMap<>();
+    Path envFile = Path.of(".env");
+    if (!Files.isRegularFile(envFile)) {
+      return values;
     }
-    return properties;
+    try {
+      for (String line : Files.readAllLines(envFile)) {
+        String trimmed = line.trim();
+        if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+          continue;
+        }
+        int separator = trimmed.indexOf('=');
+        if (separator <= 0) {
+          continue;
+        }
+        values.put(trimmed.substring(0, separator).trim(), trimmed.substring(separator + 1).trim());
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Не удалось прочитать файл .env", e);
+    }
+    return values;
+  }
+
+  private static String requireEnv(String name) {
+    String value = System.getenv(name);
+    if (value == null || value.isBlank()) {
+      value = DOT_ENV.get(name);
+    }
+    if (value == null || value.isBlank()) {
+      throw new IllegalStateException(
+          "Переменная окружения " + name + " не задана. Проверьте файл .env");
+    }
+    return value;
   }
 
   public static Connection getConnection() {
     try {
       return DriverManager.getConnection(
-          CONFIG.getProperty("db.url"),
-          CONFIG.getProperty("db.user"),
-          CONFIG.getProperty("db.password"));
+          requireEnv("DB_URL"), requireEnv("DB_USER"), requireEnv("DB_PASSWORD"));
     } catch (SQLException e) {
       throw new DatabaseAccessException(
           "Не удалось подключиться к базе данных: " + e.getMessage(), e);
