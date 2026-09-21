@@ -19,6 +19,7 @@ import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
 import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
+import rentalmarketplace.service.SearchService;
 import rentalmarketplace.service.UserService;
 import rentalmarketplace.util.DatabaseManager;
 
@@ -27,14 +28,17 @@ public class ConsoleMenu {
   private final UserService userService;
   private final ListingService listingService;
   private final RentalRequestService rentalRequestService;
+  private final SearchService searchService;
 
   public ConsoleMenu(
       UserService userService,
       ListingService listingService,
-      RentalRequestService rentalRequestService) {
+      RentalRequestService rentalRequestService,
+      SearchService searchService) {
     this.userService = userService;
     this.listingService = listingService;
     this.rentalRequestService = rentalRequestService;
+    this.searchService = searchService;
   }
 
   public void run() {
@@ -47,7 +51,7 @@ public class ConsoleMenu {
           case 1 -> manageUsers();
           case 2 -> manageListings();
           case 3 -> manageRentalRequests();
-          case 4 -> notImplemented("Поиск");
+          case 4 -> search();
           case 5 -> notImplemented("Фильтрация");
           case 6 -> notImplemented("Сортировка");
           case 7 -> notImplemented("Статистика");
@@ -223,6 +227,23 @@ public class ConsoleMenu {
       return;
     }
     listings.forEach(listing -> System.out.println(listing.toTableRow()));
+  }
+
+  private void search() {
+    boolean back = false;
+    while (!back) {
+      System.out.println("--- Поиск ---");
+      System.out.println("1. По названию/описанию объекта");
+      System.out.println("2. По арендатору (ФИО или email)");
+      System.out.println("0. Назад");
+      int choice = readInt("Выберите действие: ");
+      switch (choice) {
+        case 1 -> printRentalRequests(searchService.searchByListing(readString("Запрос: ")));
+        case 2 -> printRentalRequests(searchService.searchByRenter(readString("Запрос: ")));
+        case 0 -> back = true;
+        default -> System.out.println("Неизвестный пункт меню");
+      }
+    }
   }
 
   private void notImplemented(String section) {
