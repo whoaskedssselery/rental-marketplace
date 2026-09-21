@@ -8,6 +8,7 @@ import rentalmarketplace.repository.UserRepository;
 import rentalmarketplace.repository.UserRepositoryJdbc;
 import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
+import rentalmarketplace.service.SearchService;
 import rentalmarketplace.service.UserService;
 import rentalmarketplace.ui.ConsoleMenu;
 
@@ -23,6 +24,9 @@ public class Main {
     RentalRequestService rentalRequestService =
         new RentalRequestService(rentalRequestRepository, listingService, userService);
 
-    new ConsoleMenu(userService, listingService, rentalRequestService).run();
+    SearchService searchService =
+        new SearchService(rentalRequestService, listingService, userService);
+
+    new ConsoleMenu(userService, listingService, rentalRequestService, searchService).run();
   }
 }
