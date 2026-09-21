@@ -14,7 +14,6 @@ public class RentalRequest implements Displayable {
   private BigDecimal totalPrice;
   private LocalDateTime createdAt;
 
-  /** Используется при создании новой заявки — id и createdAt назначит база данных. */
   public RentalRequest(
       Integer listingId,
       Integer renterId,
@@ -25,7 +24,6 @@ public class RentalRequest implements Displayable {
     this(null, listingId, renterId, startDate, endDate, status, totalPrice, null);
   }
 
-  /** Используется при загрузке уже существующей заявки (из БД или in-memory хранилища). */
   public RentalRequest(
       Integer id,
       Integer listingId,

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import rentalmarketplace.model.User;
 
-/** Простая реализация UserRepository на HashMap — используется в тестах UserService. */
 public class InMemoryUserRepository implements UserRepository {
   private final Map<Integer, User> storage = new LinkedHashMap<>();
   private int nextId = 1;

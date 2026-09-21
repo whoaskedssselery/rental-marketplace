@@ -10,12 +10,10 @@ public class User implements Displayable {
   private UserRole role;
   private LocalDateTime createdAt;
 
-  /** Используется при создании нового пользователя — id и createdAt назначит база данных. */
   public User(String fullName, String email, String phone, UserRole role) {
     this(null, fullName, email, phone, role, null);
   }
 
-  /** Используется при загрузке уже существующего пользователя (из БД или in-memory хранилища). */
   public User(
       Integer id,
       String fullName,
