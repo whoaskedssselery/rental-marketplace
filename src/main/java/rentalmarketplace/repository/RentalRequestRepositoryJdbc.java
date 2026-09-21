@@ -26,21 +26,19 @@ public class RentalRequestRepositoryJdbc implements RentalRequestRepository {
     String sql =
         "INSERT INTO rental_requests "
             + "(listing_id, renter_id, start_date, end_date, status, total_price) "
-            + "VALUES (?, ?, ?, ?, ?, ?)";
+            + "VALUES (?, ?, ?, ?, ?, ?) RETURNING id, created_at";
     try (Connection connection = DatabaseManager.getConnection();
-        PreparedStatement statement =
-            connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setInt(1, entity.getListingId());
       statement.setInt(2, entity.getRenterId());
       statement.setDate(3, Date.valueOf(entity.getStartDate()));
       statement.setDate(4, Date.valueOf(entity.getEndDate()));
       statement.setString(5, entity.getStatus().name());
       statement.setBigDecimal(6, entity.getTotalPrice());
-      statement.executeUpdate();
-      try (ResultSet keys = statement.getGeneratedKeys()) {
-        if (keys.next()) {
-          entity.setId(keys.getInt(1));
-        }
+      try (ResultSet resultSet = statement.executeQuery()) {
+        resultSet.next();
+        entity.setId(resultSet.getInt("id"));
+        entity.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
       }
       return entity;
     } catch (SQLException e) {

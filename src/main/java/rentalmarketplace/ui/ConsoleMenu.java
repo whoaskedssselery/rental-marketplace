@@ -1,10 +1,6 @@
 package rentalmarketplace.ui;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -86,18 +82,8 @@ public class ConsoleMenu {
   }
 
   private void printDatabaseTables() {
-    String sql =
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name";
-    try (Connection connection = DatabaseManager.getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sql)) {
-      System.out.println("Таблицы в базе данных: ");
-      while (resultSet.next()) {
-        System.out.println(" - " + resultSet.getString("table_name"));
-      }
-    } catch (SQLException e) {
-      throw new DatabaseAccessException("Не удалось получить список таблиц: " + e.getMessage(), e);
-    }
+    System.out.println("Таблицы в базе данных: ");
+    DatabaseManager.listTableNames().forEach(tableName -> System.out.println(" - " + tableName));
   }
 
   private void manageUsers() {
