@@ -73,7 +73,7 @@ class RentalRequestServiceTest {
   @Test
   void create_success_computesTotalPriceAndSetsNewStatus() {
     LocalDate start = LocalDate.of(2026, 10, 1);
-    LocalDate end = LocalDate.of(2026, 10, 5); // 4 дня
+    LocalDate end = LocalDate.of(2026, 10, 5);
 
     RentalRequest created = service.create(LISTING_ID, RENTER_ID, start, end);
 
@@ -131,7 +131,6 @@ class RentalRequestServiceTest {
         service.create(LISTING_ID, RENTER_ID, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
     service.changeStatus(first.getId(), RentalRequestStatus.CANCELLED);
 
-    // Не должно бросить — CANCELLED не блокирует даты
     service.create(LISTING_ID, RENTER_ID, LocalDate.of(2026, 10, 3), LocalDate.of(2026, 10, 7));
   }
 
@@ -166,7 +165,6 @@ class RentalRequestServiceTest {
     RentalRequest request =
         service.create(LISTING_ID, RENTER_ID, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 5));
 
-    // Сдвигаем на день — не должно упасть, сама с собой не пересекается
     service.updateDates(request.getId(), LocalDate.of(2026, 10, 2), LocalDate.of(2026, 10, 6));
   }
 

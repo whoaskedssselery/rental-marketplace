@@ -13,7 +13,6 @@ public class Listing implements Displayable {
   private boolean available;
   private LocalDateTime createdAt;
 
-  /** Используется при создании нового объекта — id и createdAt назначит база данных. */
   public Listing(
       Integer ownerId,
       String title,
@@ -24,7 +23,6 @@ public class Listing implements Displayable {
     this(null, ownerId, title, description, pricePerDay, category, available, null);
   }
 
-  /** Используется при загрузке уже существующего объекта (из БД или in-memory хранилища). */
   public Listing(
       Integer id,
       Integer ownerId,

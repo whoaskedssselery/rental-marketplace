@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import rentalmarketplace.model.Listing;
 
-/** Простая реализация ListingRepository на HashMap — используется в тестах ListingService. */
 public class InMemoryListingRepository implements ListingRepository {
   private final Map<Integer, Listing> storage = new LinkedHashMap<>();
   private int nextId = 1;
