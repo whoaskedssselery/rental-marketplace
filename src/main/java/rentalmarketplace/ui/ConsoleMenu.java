@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.IntFunction;
 import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.exception.DatabaseAccessException;
 import rentalmarketplace.exception.EntityNotFoundException;
@@ -99,7 +100,7 @@ public class ConsoleMenu {
       int choice = readInt("Выберите действие: ");
       switch (choice) {
         case 1 -> printUsers(userService.getAllUsers());
-        case 2 -> printUsers(List.of(userService.getUserById(readInt("id: "))));
+        case 2 -> printUsers(List.of(readEntityId("id: ", userService::getUserById)));
         case 3 -> createUser();
         case 4 -> updateUser();
         case 5 -> deleteUser();
@@ -119,7 +120,7 @@ public class ConsoleMenu {
   }
 
   private void updateUser() {
-    int id = readInt("id пользователя для обновления: ");
+    int id = readEntityId("id пользователя для обновления: ", userService::getUserById).getId();
     String fullName = readString("Новое имя: ");
     String email = readString("Новый email: ");
     String phone = readString("Новый телефон: ");
@@ -129,7 +130,7 @@ public class ConsoleMenu {
   }
 
   private void deleteUser() {
-    int id = readInt("id пользователя для удаления: ");
+    int id = readEntityId("id пользователя для удаления: ", userService::getUserById).getId();
     userService.deleteUser(id);
     System.out.println("Пользователь удалён");
   }
@@ -166,7 +167,7 @@ public class ConsoleMenu {
       int choice = readInt("Выберите действие: ");
       switch (choice) {
         case 1 -> printListings(listingService.getAllListings());
-        case 2 -> printListings(List.of(listingService.getListingById(readInt("id: "))));
+        case 2 -> printListings(List.of(readEntityId("id: ", listingService::getListingById)));
         case 3 -> createListing();
         case 4 -> updateListing();
         case 5 -> deleteListing();
@@ -177,7 +178,7 @@ public class ConsoleMenu {
   }
 
   private void createListing() {
-    int ownerId = readInt("id владельца: ");
+    int ownerId = readEntityId("id владельца: ", userService::getUserById).getId();
     String title = readString("Название: ");
     String description = readString("Описание: ");
     BigDecimal pricePerDay = readBigDecimal("Цена за день: ");
@@ -188,8 +189,8 @@ public class ConsoleMenu {
   }
 
   private void updateListing() {
-    int id = readInt("id объекта для обновления: ");
-    int ownerId = readInt("id владельца: ");
+    int id = readEntityId("id объекта для обновления: ", listingService::getListingById).getId();
+    int ownerId = readEntityId("id владельца: ", userService::getUserById).getId();
     String title = readString("Новое название: ");
     String description = readString("Новое описание: ");
     BigDecimal pricePerDay = readBigDecimal("Новая цена за день: ");
@@ -202,7 +203,7 @@ public class ConsoleMenu {
   }
 
   private void deleteListing() {
-    int id = readInt("id объекта для удаления: ");
+    int id = readEntityId("id объекта для удаления: ", listingService::getListingById).getId();
     listingService.deleteListing(id);
     System.out.println("Объект аренды удалён");
   }
@@ -277,6 +278,17 @@ public class ConsoleMenu {
     }
   }
 
+  private <T> T readEntityId(String prompt, IntFunction<T> fetchById) {
+    while (true) {
+      int id = readInt(prompt);
+      try {
+        return fetchById.apply(id);
+      } catch (EntityNotFoundException e) {
+        System.out.println("Ошибка: " + e.getMessage());
+      }
+    }
+  }
+
   private void manageRentalRequests() {
     boolean back = false;
     while (!back) {
@@ -291,7 +303,7 @@ public class ConsoleMenu {
       int choice = readInt("Выберите действие: ");
       switch (choice) {
         case 1 -> printRentalRequests(rentalRequestService.getAll());
-        case 2 -> printRentalRequests(List.of(rentalRequestService.getById(readInt("id: "))));
+        case 2 -> printRentalRequests(List.of(readEntityId("id: ", rentalRequestService::getById)));
         case 3 -> createRentalRequest();
         case 4 -> updateRentalRequestDates();
         case 5 -> changeRentalRequestStatus();
@@ -303,8 +315,8 @@ public class ConsoleMenu {
   }
 
   private void createRentalRequest() {
-    int listingId = readInt("id объекта: ");
-    int renterId = readInt("id арендатора: ");
+    int listingId = readEntityId("id объекта: ", listingService::getListingById).getId();
+    int renterId = readEntityId("id арендатора: ", userService::getUserById).getId();
     LocalDate startDate = readDate("Дата начала (гггг-мм-дд): ");
     LocalDate endDate = readDate("Дата окончания (гггг-мм-дд): ");
     RentalRequest created = rentalRequestService.create(listingId, renterId, startDate, endDate);
@@ -312,7 +324,7 @@ public class ConsoleMenu {
   }
 
   private void updateRentalRequestDates() {
-    int id = readInt("id заявки: ");
+    int id = readEntityId("id заявки: ", rentalRequestService::getById).getId();
     LocalDate startDate = readDate("Новая дата начала (гггг-мм-дд): ");
     LocalDate endDate = readDate("Новая дата окончания (гггг-мм-дд): ");
     RentalRequest updated = rentalRequestService.updateDates(id, startDate, endDate);
@@ -320,14 +332,14 @@ public class ConsoleMenu {
   }
 
   private void changeRentalRequestStatus() {
-    int id = readInt("id заявки: ");
+    int id = readEntityId("id заявки: ", rentalRequestService::getById).getId();
     RentalRequestStatus status = readRentalRequestStatus();
     RentalRequest updated = rentalRequestService.changeStatus(id, status);
     System.out.println("Обновлено: " + updated.toTableRow());
   }
 
   private void deleteRentalRequest() {
-    int id = readInt("id заявки для удаления: ");
+    int id = readEntityId("id заявки для удаления: ", rentalRequestService::getById).getId();
     rentalRequestService.delete(id);
     System.out.println("Заявка удалена");
   }
