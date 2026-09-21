@@ -1,0 +1,150 @@
+package rentalmarketplace.repository;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import rentalmarketplace.exception.DatabaseAccessException;
+import rentalmarketplace.model.RentalRequest;
+import rentalmarketplace.model.RentalRequestStatus;
+import rentalmarketplace.util.DatabaseManager;
+
+public class RentalRequestRepositoryJdbc implements RentalRequestRepository {
+
+  private static final String SELECT_ALL =
+      "SELECT id, listing_id, renter_id, start_date, end_date, status, total_price, created_at "
+          + "FROM rental_requests";
+
+  @Override
+  public RentalRequest save(RentalRequest entity) {
+    String sql =
+        "INSERT INTO rental_requests "
+            + "(listing_id, renter_id, start_date, end_date, status, total_price) "
+            + "VALUES (?, ?, ?, ?, ?, ?)";
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement =
+            connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+      statement.setInt(1, entity.getListingId());
+      statement.setInt(2, entity.getRenterId());
+      statement.setDate(3, Date.valueOf(entity.getStartDate()));
+      statement.setDate(4, Date.valueOf(entity.getEndDate()));
+      statement.setString(5, entity.getStatus().name());
+      statement.setBigDecimal(6, entity.getTotalPrice());
+      statement.executeUpdate();
+      try (ResultSet keys = statement.getGeneratedKeys()) {
+        if (keys.next()) {
+          entity.setId(keys.getInt(1));
+        }
+      }
+      return entity;
+    } catch (SQLException e) {
+      throw new DatabaseAccessException("Не удалось сохранить заявку: " + e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public Optional<RentalRequest> findById(Integer id) {
+    String sql = SELECT_ALL + " WHERE id = ?";
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, id);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+          return Optional.of(mapRow(resultSet));
+        }
+      }
+    } catch (SQLException e) {
+      throw new DatabaseAccessException(
+          "Не удалось найти заявку по id=" + id + ": " + e.getMessage(), e);
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public List<RentalRequest> findAll() {
+    List<RentalRequest> result = new ArrayList<>();
+    try (Connection connection = DatabaseManager.getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(SELECT_ALL + " ORDER BY id")) {
+      while (resultSet.next()) {
+        result.add(mapRow(resultSet));
+      }
+    } catch (SQLException e) {
+      throw new DatabaseAccessException("Не удалось получить список заявок: " + e.getMessage(), e);
+    }
+    return result;
+  }
+
+  @Override
+  public RentalRequest update(RentalRequest entity) {
+    String sql =
+        "UPDATE rental_requests "
+            + "SET listing_id = ?, renter_id = ?, start_date = ?, end_date = ?, "
+            + "status = ?, total_price = ? "
+            + "WHERE id = ?";
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, entity.getListingId());
+      statement.setInt(2, entity.getRenterId());
+      statement.setDate(3, Date.valueOf(entity.getStartDate()));
+      statement.setDate(4, Date.valueOf(entity.getEndDate()));
+      statement.setString(5, entity.getStatus().name());
+      statement.setBigDecimal(6, entity.getTotalPrice());
+      statement.setInt(7, entity.getId());
+      statement.executeUpdate();
+      return entity;
+    } catch (SQLException e) {
+      throw new DatabaseAccessException("Не удалось обновить заявку: " + e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public void deleteById(Integer id) {
+    String sql = "DELETE FROM rental_requests WHERE id = ?";
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, id);
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseAccessException("Не удалось удалить заявку: " + e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public List<RentalRequest> findActiveByListingId(Integer listingId) {
+    List<RentalRequest> result = new ArrayList<>();
+    String sql = SELECT_ALL + " WHERE listing_id = ? AND status IN ('NEW', 'CONFIRMED', 'ACTIVE')";
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, listingId);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        while (resultSet.next()) {
+          result.add(mapRow(resultSet));
+        }
+      }
+    } catch (SQLException e) {
+      throw new DatabaseAccessException(
+          "Не удалось получить активные заявки: " + e.getMessage(), e);
+    }
+    return result;
+  }
+
+  private RentalRequest mapRow(ResultSet resultSet) throws SQLException {
+    Timestamp createdAt = resultSet.getTimestamp("created_at");
+    return new RentalRequest(
+        resultSet.getInt("id"),
+        resultSet.getInt("listing_id"),
+        resultSet.getInt("renter_id"),
+        resultSet.getDate("start_date").toLocalDate(),
+        resultSet.getDate("end_date").toLocalDate(),
+        RentalRequestStatus.valueOf(resultSet.getString("status")),
+        resultSet.getBigDecimal("total_price"),
+        createdAt == null ? null : createdAt.toLocalDateTime());
+  }
+}
