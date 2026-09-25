@@ -5,6 +5,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class RentalRequest implements Displayable {
+  private static final String ROW_FORMAT = "%-4s %-8s %-10s %-12s %-12s %-10s %-10s %-20s";
+  public static final String TABLE_HEADER =
+      String.format(
+          ROW_FORMAT, "id", "Объект", "Арендатор", "Начало", "Конец", "Статус", "Сумма", "Создана");
+
   private Integer id;
   private Integer listingId;
   private Integer renterId;
@@ -110,7 +115,7 @@ public class RentalRequest implements Displayable {
   @Override
   public String toTableRow() {
     return String.format(
-        "%-4s %-6s %-6s %-12s %-12s %-10s %-10s %-20s",
+        ROW_FORMAT,
         id == null ? "-" : id,
         listingId == null ? "-" : listingId,
         renterId == null ? "-" : renterId,

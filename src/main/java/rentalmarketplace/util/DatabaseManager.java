@@ -1,61 +1,82 @@
 package rentalmarketplace.util;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import rentalmarketplace.exception.DatabaseAccessException;
 
 public final class DatabaseManager {
-  private static final Properties CONFIG = loadConfig();
+  private static final String FOREIGN_KEY_VIOLATION = "23503";
+  private static final String EXCLUSION_VIOLATION = "23P01";
+  private static final Path ENV_FILE = Path.of(".env");
+
+  private static HikariDataSource dataSource;
 
   private DatabaseManager() {}
 
-  private static Properties loadConfig() {
-    Properties properties = new Properties();
-    try (InputStream input =
-        DatabaseManager.class.getClassLoader().getResourceAsStream("application.properties")) {
-      if (input == null) {
-        throw new IllegalStateException("Файл application.properties не найден в classpath");
-      }
-      properties.load(input);
-    } catch (IOException e) {
-      throw new IllegalStateException("Не удалось прочитать application.properties", e);
-    }
-    return properties;
-  }
-
-  public static Connection getConnection() {
+  public static synchronized Connection getConnection() {
     try {
-      return DriverManager.getConnection(
-          CONFIG.getProperty("db.url"),
-          CONFIG.getProperty("db.user"),
-          CONFIG.getProperty("db.password"));
-    } catch (SQLException e) {
+      if (dataSource == null) {
+        dataSource = createDataSource();
+      }
+      return dataSource.getConnection();
+    } catch (SQLException | RuntimeException e) {
       throw new DatabaseAccessException(
           "Не удалось подключиться к базе данных: " + e.getMessage(), e);
     }
   }
 
-  public static List<String> listTableNames() {
-    String sql =
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name";
-    List<String> tableNames = new ArrayList<>();
-    try (Connection connection = getConnection();
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(sql)) {
-      while (resultSet.next()) {
-        tableNames.add(resultSet.getString("table_name"));
+  public static boolean isForeignKeyViolation(SQLException e) {
+    return FOREIGN_KEY_VIOLATION.equals(e.getSQLState());
+  }
+
+  public static boolean isExclusionViolation(SQLException e) {
+    return EXCLUSION_VIOLATION.equals(e.getSQLState());
+  }
+
+  private static HikariDataSource createDataSource() {
+    Properties dotEnv = loadDotEnv();
+    HikariConfig config = new HikariConfig();
+    config.setJdbcUrl(readSetting("DB_URL", dotEnv));
+    config.setUsername(readSetting("DB_USER", dotEnv));
+    config.setPassword(readSetting("DB_PASSWORD", dotEnv));
+    config.setMaximumPoolSize(5);
+    config.setMinimumIdle(1);
+    config.setConnectionTimeout(5000);
+    config.setInitializationFailTimeout(-1);
+    return new HikariDataSource(config);
+  }
+
+  private static Properties loadDotEnv() {
+    Properties properties = new Properties();
+    if (Files.isRegularFile(ENV_FILE)) {
+      try (Reader reader = Files.newBufferedReader(ENV_FILE, StandardCharsets.UTF_8)) {
+        properties.load(reader);
+      } catch (IOException e) {
+        throw new IllegalStateException("Не удалось прочитать файл .env: " + e.getMessage(), e);
       }
-      return tableNames;
-    } catch (SQLException e) {
-      throw new DatabaseAccessException("Не удалось получить список таблиц: " + e.getMessage(), e);
     }
+    return properties;
+  }
+
+  private static String readSetting(String name, Properties dotEnv) {
+    String value = System.getenv(name);
+    if (value == null || value.isBlank()) {
+      value = dotEnv.getProperty(name);
+    }
+    if (value == null || value.isBlank()) {
+      throw new IllegalStateException(
+          "Не задана настройка "
+              + name
+              + " (переменная окружения или файл .env, см. .env.example)");
+    }
+    return value.trim();
   }
 }
