@@ -10,11 +10,16 @@
 
 ## Первый запуск (сделать один раз)
 
-1. Поднять базу данных:
+1. Создать файл с настройками (пароль БД хранится только в нём, файл в `.gitignore`) и при желании поменять пароль:
+   ```bash
+   cp .env.example .env
+   ```
+   Приложение читает `DB_URL`, `DB_USER`, `DB_PASSWORD` из переменных окружения, а если их нет — из `.env`. `docker compose` берёт `POSTGRES_*` из того же `.env`.
+2. Поднять базу данных:
    ```bash
    docker compose up -d
    ```
-2. Проверить, что контейнер `healthy`:
+3. Проверить, что контейнер `healthy`:
    ```bash
    docker compose ps
    ```
@@ -71,6 +76,12 @@ git checkout feature/<ветка-из-таблицы>
 mvn test
 ```
 
+Полная проверка (форматирование Spotless, тесты, линтер Checkstyle — правила в `config/checkstyle.xml`):
+
+```bash
+mvn verify
+```
+
 ## Сброс базы данных
 
 Схема и seed-данные (`db/init.sql`) применяются только при первом запуске контейнера. Если нужно применить изменения заново:
@@ -82,12 +93,14 @@ docker compose up -d
 
 ## Структура проекта
 
-- `model/` — сущности и enum'ы
-- `repository/` — доступ к данным (JDBC)
-- `service/` — бизнес-логика и валидация
+- `model/` — сущности (`User`, `Listing`, `RentalRequest`), enum'ы, интерфейс `Displayable`, `Statistics`
+- `repository/` — доступ к БД через JDBC, интерфейс `CrudRepository`, по классу на таблицу
+- `service/` — бизнес-логика: `UserService`, `ListingService`, `RentalRequestService` (+ поиск, фильтры, сортировка), `ReportService` (статистика, экспорт)
 - `exception/` — собственные исключения
-- `ui/` — консольное меню
-- `util/` — подключение к БД, экспорт в Excel
+- `ui/` — консольные меню: `ConsoleMenu` (главное), `UserMenu`, `ListingMenu`, `RentalRequestMenu`; `ConsoleInput` (ввод), интерфейс `Menu`
+- `util/` — пул соединений HikariCP и настройки (`DatabaseManager`), экспорт в Excel (`ExcelExporter`)
+
+Тесты используют Fake-репозитории из `src/test/java/.../repository/` (без БД).
 
 ## ER-диаграмма
 
