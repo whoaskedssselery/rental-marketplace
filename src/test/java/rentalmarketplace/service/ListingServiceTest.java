@@ -1,6 +1,7 @@
 package rentalmarketplace.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -12,8 +13,8 @@ import rentalmarketplace.exception.EntityNotFoundException;
 import rentalmarketplace.model.Listing;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
-import rentalmarketplace.repository.InMemoryListingRepository;
-import rentalmarketplace.repository.InMemoryUserRepository;
+import rentalmarketplace.repository.FakeListingRepository;
+import rentalmarketplace.repository.FakeUserRepository;
 
 class ListingServiceTest {
   private ListingService listingService;
@@ -21,8 +22,8 @@ class ListingServiceTest {
 
   @BeforeEach
   void setUp() {
-    UserService userService = new UserService(new InMemoryUserRepository());
-    listingService = new ListingService(new InMemoryListingRepository(), userService);
+    UserService userService = new UserService(new FakeUserRepository());
+    listingService = new ListingService(new FakeListingRepository(), userService);
     User owner = userService.createUser("Владелец", "owner@example.com", null, UserRole.OWNER);
     ownerId = owner.getId();
   }
@@ -57,6 +58,36 @@ class ListingServiceTest {
     assertNotNull(saved.getId());
     assertEquals(ownerId, saved.getOwnerId());
     assertEquals("Квартира", saved.getTitle());
+  }
+
+  @Test
+  void createListing_withBlankCategory_throwsBusinessRuleException() {
+    assertThrows(
+        BusinessRuleException.class,
+        () -> listingService.createListing(ownerId, "Т", "d", BigDecimal.valueOf(100), "  "));
+  }
+
+  @Test
+  void createListing_withTooLongTitle_throwsBusinessRuleException() {
+    String title = "a".repeat(201);
+
+    assertThrows(
+        BusinessRuleException.class,
+        () -> listingService.createListing(ownerId, title, "d", BigDecimal.valueOf(100), "cat"));
+  }
+
+  @Test
+  void updateListing_changesFields() {
+    Listing saved =
+        listingService.createListing(ownerId, "Старое", "d", BigDecimal.valueOf(100), "cat");
+
+    Listing updated =
+        listingService.updateListing(
+            saved.getId(), ownerId, "Новое", "d2", BigDecimal.valueOf(200), "cat2", false);
+
+    assertEquals("Новое", updated.getTitle());
+    assertEquals(0, BigDecimal.valueOf(200).compareTo(updated.getPricePerDay()));
+    assertFalse(updated.isAvailable());
   }
 
   @Test

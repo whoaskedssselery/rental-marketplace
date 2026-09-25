@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     full_name VARCHAR(150) NOT NULL,
@@ -27,7 +29,11 @@ CREATE TABLE rental_requests (
     status VARCHAR(20) NOT NULL CHECK (status IN ('NEW', 'CONFIRMED', 'ACTIVE', 'COMPLETED', 'CANCELLED', 'REJECTED')),
     total_price NUMERIC(10, 2) NOT NULL CHECK (total_price > 0),
     created_at TIMESTAMP NOT NULL DEFAULT now(),
-    CHECK (end_date > start_date)
+    CHECK (end_date > start_date),
+    CONSTRAINT no_overlapping_active_requests EXCLUDE USING gist (
+        listing_id WITH =,
+        daterange(start_date, end_date) WITH &&
+    ) WHERE (status IN ('NEW', 'CONFIRMED', 'ACTIVE'))
 );
 
 INSERT INTO users (full_name, email, phone, role) VALUES
@@ -58,3 +64,6 @@ INSERT INTO rental_requests (listing_id, renter_id, start_date, end_date, status
     (2, 6, '2026-09-18', '2026-09-19', 'NEW', 500.00),
     (5, 2, '2026-09-22', '2026-09-23', 'NEW', 800.00),
     (4, 4, '2026-08-01', '2026-08-10', 'COMPLETED', 3150.00);
+CREATE INDEX idx_listings_owner_id ON listings (owner_id);
+CREATE INDEX idx_rental_requests_renter_id ON rental_requests (renter_id);
+CREATE INDEX idx_rental_requests_listing_status ON rental_requests (listing_id, status);

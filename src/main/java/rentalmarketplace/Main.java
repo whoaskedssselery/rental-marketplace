@@ -1,32 +1,37 @@
 package rentalmarketplace;
 
 import rentalmarketplace.repository.ListingRepository;
-import rentalmarketplace.repository.ListingRepositoryJdbc;
 import rentalmarketplace.repository.RentalRequestRepository;
-import rentalmarketplace.repository.RentalRequestRepositoryJdbc;
+import rentalmarketplace.repository.SchemaRepository;
 import rentalmarketplace.repository.UserRepository;
-import rentalmarketplace.repository.UserRepositoryJdbc;
 import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
-import rentalmarketplace.service.SearchService;
+import rentalmarketplace.service.ReportService;
 import rentalmarketplace.service.UserService;
+import rentalmarketplace.ui.ConsoleInput;
 import rentalmarketplace.ui.ConsoleMenu;
+import rentalmarketplace.ui.ListingMenu;
+import rentalmarketplace.ui.RentalRequestMenu;
+import rentalmarketplace.ui.UserMenu;
 
 public class Main {
   public static void main(String[] args) {
-    UserRepository userRepository = new UserRepositoryJdbc();
-    UserService userService = new UserService(userRepository);
-
-    ListingRepository listingRepository = new ListingRepositoryJdbc();
-    ListingService listingService = new ListingService(listingRepository, userService);
-
-    RentalRequestRepository rentalRequestRepository = new RentalRequestRepositoryJdbc();
+    UserService userService = new UserService(new UserRepository());
+    ListingService listingService = new ListingService(new ListingRepository(), userService);
     RentalRequestService rentalRequestService =
-        new RentalRequestService(rentalRequestRepository, listingService, userService);
+        new RentalRequestService(new RentalRequestRepository(), listingService, userService);
+    ReportService reportService =
+        new ReportService(
+            userService, listingService, rentalRequestService, new SchemaRepository());
 
-    SearchService searchService =
-        new SearchService(rentalRequestService, listingService, userService);
-
-    new ConsoleMenu(userService, listingService, rentalRequestService, searchService).run();
+    ConsoleInput input = new ConsoleInput();
+    ConsoleMenu mainMenu =
+        new ConsoleMenu(
+            input,
+            new UserMenu(userService, input),
+            new ListingMenu(listingService, userService, input),
+            new RentalRequestMenu(rentalRequestService, listingService, userService, input),
+            reportService);
+    mainMenu.run();
   }
 }

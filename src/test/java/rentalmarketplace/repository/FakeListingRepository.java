@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import rentalmarketplace.model.Listing;
 
-public class InMemoryListingRepository implements ListingRepository {
+public class FakeListingRepository extends ListingRepository {
   private final Map<Integer, Listing> storage = new LinkedHashMap<>();
   private int nextId = 1;
 

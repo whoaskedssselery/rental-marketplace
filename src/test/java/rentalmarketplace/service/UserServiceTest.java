@@ -2,6 +2,7 @@ package rentalmarketplace.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -11,16 +12,15 @@ import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.exception.EntityNotFoundException;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
-import rentalmarketplace.repository.InMemoryUserRepository;
-import rentalmarketplace.repository.UserRepository;
+import rentalmarketplace.repository.FakeUserRepository;
 
 class UserServiceTest {
-  private UserRepository userRepository;
+  private FakeUserRepository userRepository;
   private UserService userService;
 
   @BeforeEach
   void setUp() {
-    userRepository = new InMemoryUserRepository();
+    userRepository = new FakeUserRepository();
     userService = new UserService(userRepository);
   }
 
@@ -93,5 +93,37 @@ class UserServiceTest {
 
     assertEquals("Иван Петров-Сидоров", updated.getFullName());
     assertEquals(UserRole.OWNER, updated.getRole());
+  }
+
+  @Test
+  void createUser_withNullRole_throwsBusinessRuleException() {
+    assertThrows(
+        BusinessRuleException.class,
+        () -> userService.createUser("Иван Петров", "ivan@example.com", null, null));
+  }
+
+  @Test
+  void createUser_withTooLongPhone_throwsBusinessRuleException() {
+    String phone = "1".repeat(31);
+
+    assertThrows(
+        BusinessRuleException.class,
+        () -> userService.createUser("Иван Петров", "ivan@example.com", phone, UserRole.RENTER));
+  }
+
+  @Test
+  void createUser_withBlankPhone_storesNull() {
+    User created = userService.createUser("Иван Петров", "ivan@example.com", "  ", UserRole.RENTER);
+
+    assertNull(created.getPhone());
+  }
+
+  @Test
+  void deleteUser_removesUser() {
+    User created = userService.createUser("Иван Петров", "ivan@example.com", null, UserRole.RENTER);
+
+    userService.deleteUser(created.getId());
+
+    assertThrows(EntityNotFoundException.class, () -> userService.getUserById(created.getId()));
   }
 }

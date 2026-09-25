@@ -4,6 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Listing implements Displayable {
+  private static final String ROW_FORMAT = "%-4s %-8s %-30s %-12s %-15s %-9s";
+  public static final String TABLE_HEADER =
+      String.format(ROW_FORMAT, "id", "Владелец", "Название", "Цена/день", "Категория", "Доступен");
+
   private Integer id;
   private Integer ownerId;
   private String title;
@@ -109,13 +113,13 @@ public class Listing implements Displayable {
   @Override
   public String toTableRow() {
     return String.format(
-        "%-4s %-6s %-30s %-12s %-15s %-5s",
+        ROW_FORMAT,
         id == null ? "-" : id,
         ownerId == null ? "-" : ownerId,
         title,
         pricePerDay,
         category,
-        available);
+        available ? "да" : "нет");
   }
 
   @Override

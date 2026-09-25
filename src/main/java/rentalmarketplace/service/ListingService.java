@@ -8,6 +8,9 @@ import rentalmarketplace.model.Listing;
 import rentalmarketplace.repository.ListingRepository;
 
 public class ListingService {
+  private static final int TITLE_MAX_LENGTH = 200;
+  private static final int CATEGORY_MAX_LENGTH = 50;
+
   private final ListingRepository listingRepository;
   private final UserService userService;
 
@@ -19,9 +22,11 @@ public class ListingService {
   public Listing createListing(
       Integer ownerId, String title, String description, BigDecimal pricePerDay, String category) {
     validateTitle(title);
+    validateCategory(category);
     validatePrice(pricePerDay);
     userService.getUserById(ownerId);
-    Listing listing = new Listing(ownerId, title.trim(), description, pricePerDay, category, true);
+    Listing listing =
+        new Listing(ownerId, title.trim(), description, pricePerDay, category.trim(), true);
     return listingRepository.save(listing);
   }
 
@@ -45,13 +50,14 @@ public class ListingService {
       boolean available) {
     Listing existing = getListingById(id);
     validateTitle(title);
+    validateCategory(category);
     validatePrice(pricePerDay);
     userService.getUserById(ownerId);
     existing.setOwnerId(ownerId);
     existing.setTitle(title.trim());
     existing.setDescription(description);
     existing.setPricePerDay(pricePerDay);
-    existing.setCategory(category);
+    existing.setCategory(category.trim());
     existing.setAvailable(available);
     return listingRepository.update(existing);
   }
@@ -64,6 +70,20 @@ public class ListingService {
   private void validateTitle(String title) {
     if (title == null || title.isBlank()) {
       throw new BusinessRuleException("Название объекта не может быть пустым");
+    }
+    if (title.trim().length() > TITLE_MAX_LENGTH) {
+      throw new BusinessRuleException(
+          "Название объекта не может быть длиннее " + TITLE_MAX_LENGTH + " символов");
+    }
+  }
+
+  private void validateCategory(String category) {
+    if (category == null || category.isBlank()) {
+      throw new BusinessRuleException("Категория не может быть пустой");
+    }
+    if (category.trim().length() > CATEGORY_MAX_LENGTH) {
+      throw new BusinessRuleException(
+          "Категория не может быть длиннее " + CATEGORY_MAX_LENGTH + " символов");
     }
   }
 

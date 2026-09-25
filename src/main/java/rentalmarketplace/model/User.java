@@ -3,6 +3,10 @@ package rentalmarketplace.model;
 import java.time.LocalDateTime;
 
 public class User implements Displayable {
+  private static final String ROW_FORMAT = "%-4s %-25s %-30s %-16s %-8s %-20s";
+  public static final String TABLE_HEADER =
+      String.format(ROW_FORMAT, "id", "Имя", "Email", "Телефон", "Роль", "Создан");
+
   private Integer id;
   private String fullName;
   private String email;
@@ -80,7 +84,7 @@ public class User implements Displayable {
   @Override
   public String toTableRow() {
     return String.format(
-        "%-4s %-25s %-30s %-16s %-8s %-20s",
+        ROW_FORMAT,
         id == null ? "-" : id,
         fullName,
         email,
