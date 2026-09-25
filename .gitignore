@@ -40,3 +40,9 @@ bin/
 .DS_Store
 Thumbs.db
 
+
+# Экспорт
+*.xlsx
+
+# Секреты
+.env
