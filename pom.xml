@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -71,7 +71,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.15</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -149,7 +149,9 @@
                 <version>3.9.0</version>
                 <configuration>
                     <java>
-                        <googleJavaFormat/>
+                        <googleJavaFormat>
+                            <version>1.35.0</version>
+                        </googleJavaFormat>
                     </java>
                 </configuration>
                 <executions>
