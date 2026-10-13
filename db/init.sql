@@ -36,6 +36,14 @@ CREATE TABLE rental_requests (
     ) WHERE (status IN ('NEW', 'CONFIRMED', 'ACTIVE'))
 );
 
+CREATE TABLE reviews (
+    id SERIAL PRIMARY KEY,
+    request_id INT NOT NULL UNIQUE REFERENCES rental_requests (id) ON DELETE CASCADE,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+);
+
 INSERT INTO users (full_name, email, phone, role) VALUES
     ('Иван Петров', 'ivan.petrov@example.com', '+7 900 111-11-11', 'OWNER'),
     ('Анна Смирнова', 'anna.smirnova@example.com', '+7 900 222-22-22', 'RENTER'),
@@ -67,3 +75,8 @@ INSERT INTO rental_requests (listing_id, renter_id, start_date, end_date, status
 CREATE INDEX idx_listings_owner_id ON listings (owner_id);
 CREATE INDEX idx_rental_requests_renter_id ON rental_requests (renter_id);
 CREATE INDEX idx_rental_requests_listing_status ON rental_requests (listing_id, status);
+
+INSERT INTO reviews (request_id, rating, comment) VALUES
+    (1, 5, 'Отличная студия, все как на фото, хозяин встретил вовремя'),
+    (2, 4, 'Перфоратор рабочий, но без запасного бура'),
+    (11, 3, 'Палатка нормальная, но немного протекла при сильном дожде');

@@ -58,6 +58,12 @@ docker compose down -v
 docker compose up -d
 ```
 
+Чтобы добавить таблицу отзывов (`reviews`) в уже созданную базу без потери данных, выполните патч (повторный запуск безопасен):
+
+```bash
+docker exec -i rental-marketplace psql -U <POSTGRES_USER> -d <POSTGRES_DB> < db/patches/2026-10-reviews.sql
+```
+
 ## Структура проекта
 
 - `model/` — сущности (`User`, `Listing`, `RentalRequest`), enum'ы, интерфейс `Displayable`, `Statistics`
