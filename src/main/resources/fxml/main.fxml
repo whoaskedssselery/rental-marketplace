@@ -36,6 +36,9 @@
             <Tab text="Пользователи">
                 <fx:include fx:id="users" source="users.fxml"/>
             </Tab>
+            <Tab text="Отзывы">
+                <fx:include fx:id="reviews" source="reviews.fxml"/>
+            </Tab>
             <Tab text="Статистика">
                 <fx:include fx:id="statistics" source="statistics.fxml"/>
             </Tab>

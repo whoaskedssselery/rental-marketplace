@@ -21,6 +21,7 @@ public class MainController {
   @FXML private Object requestsController;
   @FXML private Object listingsController;
   @FXML private Object usersController;
+  @FXML private Object reviewsController;
   @FXML private Object statisticsController;
 
   private List<Object> tabControllers;
@@ -29,7 +30,11 @@ public class MainController {
   private void initialize() {
     tabControllers =
         Arrays.asList(
-            requestsController, listingsController, usersController, statisticsController);
+            requestsController,
+            listingsController,
+            usersController,
+            reviewsController,
+            statisticsController);
     tabPane
         .getSelectionModel()
         .selectedIndexProperty()
