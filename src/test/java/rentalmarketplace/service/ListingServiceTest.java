@@ -119,4 +119,12 @@ class ListingServiceTest {
 
     assertEquals(java.util.List.of("Инструменты", "Спорт"), listingService.getCategories());
   }
+
+  @Test
+  void createListing_canStartUnavailable() {
+    Listing saved =
+        listingService.createListing(ownerId, "Дрель", "d", BigDecimal.TEN, "Инструменты", false);
+
+    assertFalse(saved.isAvailable());
+  }
 }

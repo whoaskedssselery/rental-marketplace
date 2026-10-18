@@ -25,12 +25,22 @@ public class ListingService {
 
   public Listing createListing(
       Integer ownerId, String title, String description, BigDecimal pricePerDay, String category) {
+    return createListing(ownerId, title, description, pricePerDay, category, true);
+  }
+
+  public Listing createListing(
+      Integer ownerId,
+      String title,
+      String description,
+      BigDecimal pricePerDay,
+      String category,
+      boolean available) {
     validateTitle(title);
     validateCategory(category);
     validatePrice(pricePerDay);
     userService.getUserById(ownerId);
     Listing listing =
-        new Listing(ownerId, title.trim(), description, pricePerDay, category.trim(), true);
+        new Listing(ownerId, title.trim(), description, pricePerDay, category.trim(), available);
     return listingRepository.save(listing);
   }
 
