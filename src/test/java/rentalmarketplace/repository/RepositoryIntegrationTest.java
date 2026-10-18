@@ -18,6 +18,7 @@ import rentalmarketplace.exception.DatabaseAccessException;
 import rentalmarketplace.model.Listing;
 import rentalmarketplace.model.RentalRequest;
 import rentalmarketplace.model.RentalRequestStatus;
+import rentalmarketplace.model.Review;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
 import rentalmarketplace.util.DatabaseManager;
@@ -26,6 +27,7 @@ class RepositoryIntegrationTest {
   private final UserRepository users = new UserRepository();
   private final ListingRepository listings = new ListingRepository();
   private final RentalRequestRepository requests = new RentalRequestRepository();
+  private final ReviewRepository reviews = new ReviewRepository();
   private final SchemaRepository schema = new SchemaRepository();
 
   private User owner;
@@ -131,6 +133,50 @@ class RepositoryIntegrationTest {
   @Test
   void schemaRepository_returnsApplicationTables() {
     assertTrue(
-        schema.findAllTableNames().containsAll(List.of("users", "listings", "rental_requests")));
+        schema
+            .findAllTableNames()
+            .containsAll(List.of("users", "listings", "rental_requests", "reviews")));
+  }
+
+  @Test
+  void reviewRepository_savesFindsUpdatesAndRejectsSecondReviewForRequest() {
+    RentalRequest completed = requests.save(request(1, 3, RentalRequestStatus.COMPLETED));
+
+    Review saved = reviews.save(new Review(completed.getId(), 4, "ok"));
+    assertTrue(saved.getId() != null && saved.getCreatedAt() != null);
+    assertEquals(saved.getId(), reviews.findByRequestId(completed.getId()).orElseThrow().getId());
+
+    saved.setRating(5);
+    saved.setComment(null);
+    reviews.update(saved);
+    Review reloaded = reviews.findById(saved.getId()).orElseThrow();
+    assertEquals(5, reloaded.getRating());
+    assertEquals(null, reloaded.getComment());
+    assertTrue(reviews.findAll().stream().anyMatch(r -> r.getId().equals(saved.getId())));
+
+    assertThrows(
+        DatabaseAccessException.class, () -> reviews.save(new Review(completed.getId(), 3, "x")));
+    assertThrows(
+        DatabaseAccessException.class, () -> reviews.save(new Review(completed.getId(), 9, "x")));
+  }
+
+  @Test
+  void reviewRepository_isDeletedTogetherWithRequest() {
+    RentalRequest completed = requests.save(request(1, 3, RentalRequestStatus.COMPLETED));
+    Review saved = reviews.save(new Review(completed.getId(), 4, "ok"));
+
+    requests.deleteById(completed.getId());
+
+    assertTrue(reviews.findById(saved.getId()).isEmpty());
+  }
+
+  @Test
+  void reviewRepository_deleteRemovesReview() {
+    RentalRequest completed = requests.save(request(1, 3, RentalRequestStatus.COMPLETED));
+    Review saved = reviews.save(new Review(completed.getId(), 4, "ok"));
+
+    reviews.deleteById(saved.getId());
+
+    assertFalse(reviews.findByRequestId(completed.getId()).isPresent());
   }
 }
