@@ -10,9 +10,12 @@ import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rentalmarketplace.exception.DatabaseAccessException;
 
 public final class DatabaseManager {
+  private static final Logger LOG = LoggerFactory.getLogger(DatabaseManager.class);
   private static final String FOREIGN_KEY_VIOLATION = "23503";
   private static final String EXCLUSION_VIOLATION = "23P01";
   private static final Path ENV_FILE = Path.of(".env");
@@ -30,6 +33,15 @@ public final class DatabaseManager {
     } catch (SQLException | RuntimeException e) {
       throw new DatabaseAccessException(
           "Не удалось подключиться к базе данных: " + e.getMessage(), e);
+    }
+  }
+
+  public static boolean isAvailable() {
+    try (Connection connection = getConnection()) {
+      return connection.isValid(2);
+    } catch (DatabaseAccessException | SQLException e) {
+      LOG.warn("База данных недоступна: {}", e.getMessage());
+      return false;
     }
   }
 
