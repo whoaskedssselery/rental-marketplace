@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.model.UserRole;
 import rentalmarketplace.service.RequestSort;
+import rentalmarketplace.service.ReviewSort;
 
 class LabelsTest {
 
@@ -70,5 +71,15 @@ class LabelsTest {
     String text = Labels.money(new BigDecimal("12500.5"));
 
     assertEquals("12 500,50 руб.", text.replace(' ', ' ').replace(' ', ' '));
+  }
+
+  @Test
+  void everyReviewSortHasItsOwnRussianName() {
+    Set<String> names = new HashSet<>();
+    for (ReviewSort sort : ReviewSort.values()) {
+      names.add(Labels.reviewSort(sort));
+    }
+    assertEquals(ReviewSort.values().length, names.size());
+    assertEquals("", Labels.reviewSort(null));
   }
 }

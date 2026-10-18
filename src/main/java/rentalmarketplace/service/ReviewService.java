@@ -2,6 +2,7 @@ package rentalmarketplace.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -84,6 +85,25 @@ public class ReviewService {
         .toList();
   }
 
+  public List<ReviewDetails> query(ReviewQuery query) {
+    String text = query.text() == null ? "" : query.text().trim().toLowerCase();
+    Comparator<ReviewDetails> byId = Comparator.comparing(ReviewDetails::reviewId);
+    Comparator<ReviewDetails> order = byId;
+    if (query.sort() == ReviewSort.CREATED_AT) {
+      order =
+          Comparator.comparing(
+                  ReviewDetails::createdAt, Comparator.nullsLast(Comparator.naturalOrder()))
+              .thenComparing(byId);
+    } else if (query.sort() == ReviewSort.RATING) {
+      order = Comparator.comparingInt(ReviewDetails::rating).thenComparing(byId);
+    }
+    return getDetails().stream()
+        .filter(details -> query.rating() == null || details.rating() == query.rating())
+        .filter(details -> text.isEmpty() || matchesText(details, text))
+        .sorted(query.descending() ? order.reversed() : order)
+        .toList();
+  }
+
   public List<ReviewableRequest> getReviewableRequests() {
     Set<Integer> reviewedRequestIds =
         getAll().stream().map(Review::getRequestId).collect(Collectors.toSet());
@@ -118,6 +138,16 @@ public class ReviewService {
     return Optional.of(
         BigDecimal.valueOf(sum)
             .divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP));
+  }
+
+  private boolean matchesText(ReviewDetails details, String text) {
+    return contains(details.listingTitle(), text)
+        || contains(details.renterName(), text)
+        || contains(details.comment(), text);
+  }
+
+  private boolean contains(String value, String lowerCaseText) {
+    return value != null && value.toLowerCase().contains(lowerCaseText);
   }
 
   private ReviewDetails toDetails(

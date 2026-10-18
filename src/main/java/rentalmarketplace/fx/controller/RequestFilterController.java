@@ -1,18 +1,15 @@
 package rentalmarketplace.fx.controller;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.TextField;
 import rentalmarketplace.fx.AppContext;
+import rentalmarketplace.fx.support.Choices;
 import rentalmarketplace.fx.support.Dialogs;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.model.RentalRequestStatus;
@@ -43,13 +40,13 @@ public class RequestFilterController {
 
   @FXML
   private void initialize() {
-    setupChoice(statusBox, "Все статусы", List.of(RentalRequestStatus.values()), Labels::status);
+    Choices.setup(statusBox, "Все статусы", List.of(RentalRequestStatus.values()), Labels::status);
     List<User> owners =
         context.userService().getAllUsers().stream()
             .filter(user -> user.getRole() == UserRole.OWNER)
             .toList();
-    setupChoice(ownerBox, "Все владельцы", owners, User::getFullName);
-    setupChoice(sortBox, "Без сортировки", List.of(RequestSort.values()), Labels::sort);
+    Choices.setup(ownerBox, "Все владельцы", owners, User::getFullName);
+    Choices.setup(sortBox, "Без сортировки", List.of(RequestSort.values()), Labels::sort);
   }
 
   @FXML
@@ -84,30 +81,5 @@ public class RequestFilterController {
     toPicker.setValue(null);
     descendingBox.setSelected(false);
     onApply.accept(RequestQuery.all());
-  }
-
-  private <T> void setupChoice(
-      ComboBox<T> box, String allLabel, List<T> values, Function<T, String> label) {
-    List<T> items = new ArrayList<>();
-    items.add(null);
-    items.addAll(values);
-    box.setItems(FXCollections.observableArrayList(items));
-    box.setCellFactory(list -> labelCell(allLabel, label));
-    box.setButtonCell(labelCell(allLabel, label));
-    box.getSelectionModel().selectFirst();
-  }
-
-  private <T> ListCell<T> labelCell(String allLabel, Function<T, String> label) {
-    return new ListCell<>() {
-      @Override
-      protected void updateItem(T item, boolean empty) {
-        super.updateItem(item, empty);
-        if (empty) {
-          setText(null);
-        } else {
-          setText(item == null ? allLabel : label.apply(item));
-        }
-      }
-    };
   }
 }

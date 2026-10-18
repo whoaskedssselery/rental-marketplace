@@ -202,4 +202,57 @@ class ReviewServiceTest {
 
     assertTrue(service.averageRatingForListing(drill.getId()).isEmpty());
   }
+
+  private void threeReviews() {
+    service.create(completedRequest(drill, 1).getId(), 5, "Отличная дрель");
+    service.create(completedRequest(scooter, 10).getId(), 2, null);
+    service.create(completedRequest(drill, 20).getId(), 4, "Нормально");
+  }
+
+  @Test
+  void query_withoutRestrictions_returnsAllOrderedById() {
+    threeReviews();
+
+    assertEquals(3, service.query(ReviewQuery.all()).size());
+    assertEquals(1, service.query(ReviewQuery.all()).get(0).reviewId());
+  }
+
+  @Test
+  void query_searchesListingRenterAndCommentIgnoringCase() {
+    threeReviews();
+
+    assertEquals(2, service.query(new ReviewQuery("ДРЕЛЬ", null, null, false)).size());
+    assertEquals(1, service.query(new ReviewQuery("нормально", null, null, false)).size());
+    assertEquals(3, service.query(new ReviewQuery("иван", null, null, false)).size());
+    assertTrue(service.query(new ReviewQuery("zzz", null, null, false)).isEmpty());
+  }
+
+  @Test
+  void query_filtersByRating() {
+    threeReviews();
+
+    List<ReviewDetails> found = service.query(new ReviewQuery(null, 2, null, false));
+
+    assertEquals(1, found.size());
+    assertEquals("Самокат", found.get(0).listingTitle());
+  }
+
+  @Test
+  void query_sortsByRatingAndCreatedInBothDirections() {
+    threeReviews();
+
+    assertEquals(
+        List.of(2, 4, 5),
+        service.query(new ReviewQuery(null, null, ReviewSort.RATING, false)).stream()
+            .map(ReviewDetails::rating)
+            .toList());
+    assertEquals(
+        List.of(5, 4, 2),
+        service.query(new ReviewQuery(null, null, ReviewSort.RATING, true)).stream()
+            .map(ReviewDetails::rating)
+            .toList());
+    assertEquals(
+        3,
+        service.query(new ReviewQuery(null, null, ReviewSort.CREATED_AT, true)).get(0).reviewId());
+  }
 }
