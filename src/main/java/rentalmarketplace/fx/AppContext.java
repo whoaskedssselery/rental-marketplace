@@ -11,6 +11,7 @@ import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
 import rentalmarketplace.service.ReportService;
 import rentalmarketplace.service.ReviewService;
+import rentalmarketplace.service.StatisticsService;
 import rentalmarketplace.service.UserService;
 
 public class AppContext {
@@ -18,6 +19,7 @@ public class AppContext {
   private final ListingService listingService;
   private final RentalRequestService rentalRequestService;
   private final ReviewService reviewService;
+  private final StatisticsService statisticsService;
   private final ReportService reportService;
 
   public AppContext() {
@@ -28,6 +30,8 @@ public class AppContext {
     reviewService =
         new ReviewService(
             new ReviewRepository(), rentalRequestService, listingService, userService);
+    statisticsService =
+        new StatisticsService(userService, listingService, rentalRequestService, reviewService);
     reportService =
         new ReportService(
             userService, listingService, rentalRequestService, new SchemaRepository());
@@ -47,6 +51,10 @@ public class AppContext {
 
   public ReviewService reviewService() {
     return reviewService;
+  }
+
+  public StatisticsService statisticsService() {
+    return statisticsService;
   }
 
   public ReportService reportService() {
