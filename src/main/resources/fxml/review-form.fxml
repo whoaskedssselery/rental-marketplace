@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="rentalmarketplace.fx.controller.ReviewFormController"
+      spacing="12" prefWidth="500">
+    <padding>
+        <Insets top="4" right="4" bottom="4" left="4"/>
+    </padding>
+    <Label fx:id="hintLabel" wrapText="true" styleClass="muted-text"/>
+    <GridPane hgap="12" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="90"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Заявка" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="requestBox" maxWidth="Infinity" promptText="Выберите завершенную заявку"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label fx:id="requestLabel" wrapText="true"
+               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Оценка" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="ratingBox" maxWidth="Infinity" promptText="От 1 до 5"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Комментарий" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextArea fx:id="commentArea" prefRowCount="4" wrapText="true"
+                  GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
+</VBox>
