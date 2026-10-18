@@ -2,9 +2,13 @@ package rentalmarketplace.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.exception.EntityNotFoundException;
 import rentalmarketplace.model.Listing;
+import rentalmarketplace.model.User;
 import rentalmarketplace.repository.ListingRepository;
 
 public class ListingService {
@@ -60,6 +64,34 @@ public class ListingService {
     existing.setCategory(category.trim());
     existing.setAvailable(available);
     return listingRepository.update(existing);
+  }
+
+  public List<ListingDetails> getDetails() {
+    Map<Integer, User> usersById =
+        userService.getAllUsers().stream()
+            .collect(Collectors.toMap(User::getId, Function.identity()));
+    return getAllListings().stream()
+        .map(
+            listing ->
+                new ListingDetails(
+                    listing.getId(),
+                    listing.getOwnerId(),
+                    usersById.get(listing.getOwnerId()).getFullName(),
+                    listing.getTitle(),
+                    listing.getDescription(),
+                    listing.getPricePerDay(),
+                    listing.getCategory(),
+                    listing.isAvailable(),
+                    listing.getCreatedAt()))
+        .toList();
+  }
+
+  public List<String> getCategories() {
+    return getAllListings().stream()
+        .map(Listing::getCategory)
+        .distinct()
+        .sorted(String.CASE_INSENSITIVE_ORDER)
+        .toList();
   }
 
   public void deleteListing(Integer id) {
