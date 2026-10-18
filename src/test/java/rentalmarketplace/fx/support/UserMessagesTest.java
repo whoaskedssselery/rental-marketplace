@@ -61,4 +61,11 @@ class UserMessagesTest {
 
     assertEquals("Произошла непредвиденная ошибка. Подробности записаны в журнал.", message);
   }
+
+  @Test
+  void refusalToDeleteReferencedRecordIsShownAsIs() {
+    String text = "Нельзя удалить объект аренды: на него ссылаются заявки";
+
+    assertEquals(text, UserMessages.of(new DatabaseAccessException(text, new SQLException("fk"))));
+  }
 }
