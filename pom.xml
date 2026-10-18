@@ -102,6 +102,7 @@
                         <exclude>rentalmarketplace/fx/support/Dialogs*</exclude>
                         <exclude>rentalmarketplace/fx/support/FormLoader*</exclude>
                         <exclude>rentalmarketplace/fx/support/TableCells*</exclude>
+                        <exclude>rentalmarketplace/fx/support/Choices*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
