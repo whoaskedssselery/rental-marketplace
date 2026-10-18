@@ -100,7 +100,11 @@ public class ReviewsController implements Refreshable, Exportable {
           .ifPresent(row -> table.getSelectionModel().select(row));
     }
     boolean filtered = !ReviewQuery.all().equals(query);
-    table.setPlaceholder(new Label(filtered ? "Ничего не найдено" : "Отзывов пока нет"));
+    table.setPlaceholder(
+        new Label(
+            filtered
+                ? "Ничего не найдено. Измените условия или нажмите «Сбросить»"
+                : "Отзывов пока нет. Они появятся для завершенных заявок"));
     countLabel.setText("Отзывов: " + items.size());
     onSelected();
   }

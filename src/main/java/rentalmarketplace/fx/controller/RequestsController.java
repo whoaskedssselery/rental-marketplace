@@ -80,7 +80,7 @@ public class RequestsController implements Refreshable, Exportable {
         row -> new ReadOnlyObjectWrapper<>(row.getValue().createdAt()));
     startColumn.setCellFactory(column -> TableCells.text(Labels::date));
     endColumn.setCellFactory(column -> TableCells.text(Labels::date));
-    statusColumn.setCellFactory(column -> TableCells.text(Labels::status));
+    statusColumn.setCellFactory(column -> TableCells.badge(Labels::status, Labels::statusStyle));
     totalColumn.setCellFactory(column -> TableCells.text(Labels::money));
     createdColumn.setCellFactory(column -> TableCells.text(Labels::dateTime));
 
@@ -128,7 +128,11 @@ public class RequestsController implements Refreshable, Exportable {
           .ifPresent(row -> table.getSelectionModel().select(row));
     }
     boolean filtered = !RequestQuery.all().equals(query);
-    table.setPlaceholder(new Label(filtered ? "Ничего не найдено" : "Заявок пока нет"));
+    table.setPlaceholder(
+        new Label(
+            filtered
+                ? "Ничего не найдено. Измените условия или нажмите «Сбросить»"
+                : "Заявок пока нет. Нажмите «Добавить», чтобы создать первую"));
     countLabel.setText("Заявок: " + items.size());
     updateButtons();
   }

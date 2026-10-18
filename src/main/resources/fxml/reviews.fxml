@@ -51,7 +51,7 @@
             <TableColumn fx:id="idColumn" text="Номер" prefWidth="70"/>
             <TableColumn fx:id="listingColumn" text="Объект" prefWidth="210"/>
             <TableColumn fx:id="renterColumn" text="Арендатор" prefWidth="160"/>
-            <TableColumn fx:id="ratingColumn" text="Оценка" prefWidth="80"/>
+            <TableColumn fx:id="ratingColumn" styleClass="numeric-column" text="Оценка" prefWidth="80"/>
             <TableColumn fx:id="commentColumn" text="Комментарий" prefWidth="320"/>
             <TableColumn fx:id="createdColumn" text="Создан" prefWidth="130"/>
         </columns>

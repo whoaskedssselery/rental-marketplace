@@ -98,7 +98,8 @@ public class UsersController implements Refreshable, Exportable {
           .findFirst()
           .ifPresent(row -> table.getSelectionModel().select(row));
     }
-    table.setPlaceholder(new Label("Пользователей пока нет"));
+    table.setPlaceholder(
+        new Label("Пользователей пока нет. Нажмите «Добавить», чтобы создать первого"));
     countLabel.setText("Пользователей: " + items.size());
     onSelected();
   }

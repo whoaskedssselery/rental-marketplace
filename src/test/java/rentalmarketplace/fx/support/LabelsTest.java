@@ -82,4 +82,10 @@ class LabelsTest {
     assertEquals(ReviewSort.values().length, names.size());
     assertEquals("", Labels.reviewSort(null));
   }
+
+  @Test
+  void statusStyleMatchesCssClassNames() {
+    assertEquals("status-new", Labels.statusStyle(RentalRequestStatus.NEW));
+    assertEquals("status-cancelled", Labels.statusStyle(RentalRequestStatus.CANCELLED));
+  }
 }

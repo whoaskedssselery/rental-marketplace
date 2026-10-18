@@ -32,6 +32,10 @@ public final class Labels {
     };
   }
 
+  public static String statusStyle(RentalRequestStatus status) {
+    return "status-" + status.name().toLowerCase(Locale.ROOT);
+  }
+
   public static String sort(RequestSort sort) {
     if (sort == null) {
       return "";

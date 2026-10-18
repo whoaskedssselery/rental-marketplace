@@ -94,7 +94,7 @@ public class ListingsController implements Refreshable, Exportable {
           .findFirst()
           .ifPresent(row -> table.getSelectionModel().select(row));
     }
-    table.setPlaceholder(new Label("Объектов пока нет"));
+    table.setPlaceholder(new Label("Объектов пока нет. Нажмите «Добавить», чтобы создать первый"));
     countLabel.setText("Объектов: " + items.size());
     onSelected();
   }
