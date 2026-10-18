@@ -34,6 +34,10 @@ public final class Dialogs {
     show(Alert.AlertType.ERROR, "Ошибка", message);
   }
 
+  public static void message(String header, String message) {
+    show(Alert.AlertType.INFORMATION, header, message);
+  }
+
   public static void info(String message) {
     show(Alert.AlertType.INFORMATION, "Готово", message);
   }
@@ -73,6 +77,53 @@ public final class Dialogs {
         });
     dialog.setResultConverter(button -> button == save ? resultFactory.get() : null);
     return dialog.showAndWait();
+  }
+
+  public static boolean saveForm(
+      String title, Node content, Supplier<ValidationResult> validator, Runnable save) {
+    ButtonType saveType = new ButtonType("Сохранить", ButtonBar.ButtonData.OK_DONE);
+    ButtonType cancel = new ButtonType("Отмена", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+    Label errors = new Label();
+    errors.getStyleClass().add("error-text");
+    errors.setWrapText(true);
+    errors.setVisible(false);
+    errors.setManaged(false);
+
+    Dialog<Boolean> dialog = new Dialog<>();
+    dialog.setTitle(APP_TITLE);
+    dialog.setHeaderText(title);
+    DialogPane pane = dialog.getDialogPane();
+    pane.getStylesheets().add(stylesheet());
+    pane.getButtonTypes().addAll(saveType, cancel);
+    pane.setContent(new VBox(12, content, errors));
+
+    Button saveButton = (Button) pane.lookupButton(saveType);
+    saveButton.getStyleClass().add("primary-button");
+    saveButton.addEventFilter(
+        ActionEvent.ACTION,
+        event -> {
+          String problem = null;
+          ValidationResult result = validator.get();
+          if (!result.isValid()) {
+            problem = result.summary();
+          } else {
+            try {
+              save.run();
+            } catch (RuntimeException e) {
+              problem = UserMessages.of(e);
+            }
+          }
+          if (problem != null) {
+            errors.setText(problem);
+            errors.setVisible(true);
+            errors.setManaged(true);
+            pane.getScene().getWindow().sizeToScene();
+            event.consume();
+          }
+        });
+    dialog.setResultConverter(button -> button == saveType);
+    return dialog.showAndWait().orElse(false);
   }
 
   private static void show(Alert.AlertType type, String header, String message) {

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class RentalRequestService {
       Integer requestId, LocalDate newStartDate, LocalDate newEndDate) {
     RentalRequest request = getById(requestId);
 
-    if (request.getStatus() != RentalRequestStatus.NEW) {
+    if (!canChangeDates(request.getStatus())) {
       throw new BusinessRuleException(
           "Менять даты можно только у заявок в статусе NEW (текущий: " + request.getStatus() + ")");
     }
@@ -146,6 +147,19 @@ public class RentalRequestService {
 
   public List<RentalRequest> sortByTotalPrice() {
     return getAll().stream().sorted(Comparator.comparing(RentalRequest::getTotalPrice)).toList();
+  }
+
+  public boolean canChangeDates(RentalRequestStatus status) {
+    return status == RentalRequestStatus.NEW;
+  }
+
+  public Optional<BigDecimal> estimateTotal(
+      Integer listingId, LocalDate startDate, LocalDate endDate) {
+    if (listingId == null || startDate == null || endDate == null || !endDate.isAfter(startDate)) {
+      return Optional.empty();
+    }
+    Listing listing = listingService.getListingById(listingId);
+    return Optional.of(calculateTotal(listing, startDate, endDate));
   }
 
   public List<RequestDetails> getDetails() {
