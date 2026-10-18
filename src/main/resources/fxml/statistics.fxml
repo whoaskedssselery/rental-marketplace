@@ -13,36 +13,35 @@
 
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="rentalmarketplace.fx.controller.StatisticsController"
-            fitToWidth="true" styleClass="main-pane">
-    <VBox spacing="14">
+            fitToWidth="true">
+    <VBox spacing="16">
         <padding>
             <Insets top="12" right="12" bottom="12" left="12"/>
         </padding>
-        <Label text="Общие показатели" styleClass="page-title"/>
+
         <FlowPane hgap="12" vgap="12">
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="usersValue" styleClass="stat-value"/><Label text="Пользователей" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="listingsValue" styleClass="stat-value"/><Label text="Объектов аренды" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="requestsValue" styleClass="stat-value"/><Label text="Заявок всего" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="reviewsValue" styleClass="stat-value"/><Label text="Отзывов" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="activeValue" styleClass="stat-value"/><Label text="Активных заявок" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="completedValue" styleClass="stat-value"/><Label text="Завершенных заявок" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="cancelledValue" styleClass="stat-value"/><Label text="Отмененных и отклоненных" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="shareValue" styleClass="stat-value"/><Label text="Доля отмененных и отклоненных" styleClass="stat-caption" wrapText="true"/></VBox>
+            <VBox styleClass="panel" prefWidth="330" spacing="4">
+                <Label text="Заявки" styleClass="page-title"/>
+                <VBox fx:id="requestsBox"/>
+            </VBox>
+            <VBox styleClass="panel" prefWidth="330" spacing="4">
+                <Label text="Суммы заявок" styleClass="page-title"/>
+                <VBox fx:id="moneyBox"/>
+            </VBox>
+            <VBox styleClass="panel" prefWidth="330" spacing="4">
+                <Label text="Справочники и отзывы" styleClass="page-title"/>
+                <VBox fx:id="catalogBox"/>
+            </VBox>
         </FlowPane>
-        <Label text="Суммы заявок и рейтинг" styleClass="page-title"/>
-        <FlowPane hgap="12" vgap="12">
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="averageValue" styleClass="stat-value"/><Label text="Средняя сумма заявки" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="minValue" styleClass="stat-value"/><Label text="Минимальная сумма" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="maxValue" styleClass="stat-value"/><Label text="Максимальная сумма" styleClass="stat-caption" wrapText="true"/></VBox>
-            <VBox styleClass="stat-card" prefWidth="235"><Label fx:id="ratingValue" styleClass="stat-value"/><Label text="Средний рейтинг отзывов" styleClass="stat-caption" wrapText="true"/></VBox>
-        </FlowPane>
-        <HBox spacing="14">
+
+        <HBox spacing="12">
             <VBox spacing="6" HBox.hgrow="ALWAYS">
                 <Label text="Заявки по статусам" styleClass="page-title"/>
-                <TableView fx:id="statusTable" prefHeight="230">
+                <TableView fx:id="statusTable" prefHeight="250">
                     <columns>
                         <TableColumn fx:id="statusNameColumn" text="Статус" prefWidth="160"/>
-                        <TableColumn fx:id="statusCountColumn" text="Количество" prefWidth="100"/>
+                        <TableColumn fx:id="statusCountColumn" styleClass="numeric-column"
+                                     text="Количество" prefWidth="100"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
@@ -51,10 +50,11 @@
             </VBox>
             <VBox spacing="6" HBox.hgrow="ALWAYS">
                 <Label text="Объекты по категориям" styleClass="page-title"/>
-                <TableView fx:id="categoryTable" prefHeight="230">
+                <TableView fx:id="categoryTable" prefHeight="250">
                     <columns>
                         <TableColumn fx:id="categoryNameColumn" text="Категория" prefWidth="160"/>
-                        <TableColumn fx:id="categoryCountColumn" text="Количество" prefWidth="100"/>
+                        <TableColumn fx:id="categoryCountColumn" styleClass="numeric-column"
+                                     text="Количество" prefWidth="100"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
@@ -62,14 +62,17 @@
                 </TableView>
             </VBox>
         </HBox>
-        <Label text="Заявки за период" styleClass="page-title"/>
-        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="filter-bar">
-            <Label text="С" styleClass="form-label"/>
-            <DatePicker fx:id="fromPicker" prefWidth="140"/>
-            <Label text="по" styleClass="form-label"/>
-            <DatePicker fx:id="toPicker" prefWidth="140"/>
-            <Button text="Посчитать" onAction="#onCountPeriod" styleClass="primary-button"/>
-            <Label fx:id="periodResult" styleClass="page-title"/>
-        </HBox>
+
+        <VBox spacing="6">
+            <Label text="Заявки за период" styleClass="page-title"/>
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="filter-bar">
+                <Label text="С" styleClass="form-label"/>
+                <DatePicker fx:id="fromPicker" prefWidth="140"/>
+                <Label text="по" styleClass="form-label"/>
+                <DatePicker fx:id="toPicker" prefWidth="140"/>
+                <Button text="Посчитать" onAction="#onCountPeriod" styleClass="primary-button"/>
+                <Label fx:id="periodResult" styleClass="page-title"/>
+            </HBox>
+        </VBox>
     </VBox>
 </ScrollPane>

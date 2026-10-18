@@ -6,10 +6,15 @@ import java.util.List;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import rentalmarketplace.fx.AppContext;
 import rentalmarketplace.fx.support.Dialogs;
 import rentalmarketplace.fx.support.Exportable;
@@ -20,23 +25,24 @@ import rentalmarketplace.service.StatisticsReport;
 import rentalmarketplace.service.StatisticsService;
 
 public class StatisticsController implements Refreshable, Exportable {
+  private record Figure(String name, Object value, String text) {
+    static Figure of(String name, Object value) {
+      return new Figure(name, value, String.valueOf(value));
+    }
+
+    static Figure money(String name, BigDecimal amount) {
+      return new Figure(name, amount, Labels.money(amount));
+    }
+  }
+
   private record CountRow(String name, long count) {}
 
   private final StatisticsService service;
-  private StatisticsReport report;
+  private final List<Figure> allFigures = new ArrayList<>();
 
-  @FXML private Label usersValue;
-  @FXML private Label listingsValue;
-  @FXML private Label requestsValue;
-  @FXML private Label reviewsValue;
-  @FXML private Label activeValue;
-  @FXML private Label completedValue;
-  @FXML private Label cancelledValue;
-  @FXML private Label shareValue;
-  @FXML private Label averageValue;
-  @FXML private Label minValue;
-  @FXML private Label maxValue;
-  @FXML private Label ratingValue;
+  @FXML private VBox requestsBox;
+  @FXML private VBox moneyBox;
+  @FXML private VBox catalogBox;
   @FXML private TableView<CountRow> statusTable;
   @FXML private TableColumn<CountRow, String> statusNameColumn;
   @FXML private TableColumn<CountRow, Long> statusCountColumn;
@@ -65,34 +71,56 @@ public class StatisticsController implements Refreshable, Exportable {
 
   @Override
   public void refresh() {
+    StatisticsReport report;
     try {
       report = service.collect();
     } catch (RuntimeException e) {
       Dialogs.error(UserMessages.of(e));
       return;
     }
-    usersValue.setText(String.valueOf(report.totalUsers()));
-    listingsValue.setText(String.valueOf(report.totalListings()));
-    requestsValue.setText(String.valueOf(report.totalRequests()));
-    reviewsValue.setText(String.valueOf(report.totalReviews()));
-    activeValue.setText(String.valueOf(report.activeRequests()));
-    completedValue.setText(String.valueOf(report.completedRequests()));
-    cancelledValue.setText(String.valueOf(report.cancelledOrRejectedRequests()));
-    shareValue.setText(report.cancelledSharePercent().toPlainString() + " %");
-    averageValue.setText(Labels.money(report.averageTotalPrice()));
-    minValue.setText(Labels.money(report.minTotalPrice()));
-    maxValue.setText(Labels.money(report.maxTotalPrice()));
-    ratingValue.setText(ratingText(report.averageRating()));
+    allFigures.clear();
+    show(
+        requestsBox,
+        List.of(
+            Figure.of("Всего заявок", report.totalRequests()),
+            Figure.of("Активные (новые, подтвержденные, в аренде)", report.activeRequests()),
+            Figure.of("Завершенные", report.completedRequests()),
+            Figure.of("Отмененные и отклоненные", report.cancelledOrRejectedRequests()),
+            Figure.of("Доля отмененных и отклоненных", report.cancelledSharePercent() + " %")));
+    show(
+        moneyBox,
+        List.of(
+            Figure.money("Средняя сумма", report.averageTotalPrice()),
+            Figure.money("Минимальная сумма", report.minTotalPrice()),
+            Figure.money("Максимальная сумма", report.maxTotalPrice())));
+    show(
+        catalogBox,
+        List.of(
+            Figure.of("Пользователей", report.totalUsers()),
+            Figure.of("Объектов аренды", report.totalListings()),
+            Figure.of("Отзывов", report.totalReviews()),
+            Figure.of(
+                "Средний рейтинг",
+                report.averageRating() == null ? "нет данных" : report.averageRating())));
 
     List<CountRow> byStatus = new ArrayList<>();
     report
         .requestsByStatus()
-        .forEach((status, count) -> byStatus.add(new CountRow(Labels.status(status), count)));
+        .forEach(
+            (status, count) -> {
+              byStatus.add(new CountRow(Labels.status(status), count));
+              allFigures.add(Figure.of("Заявок: " + Labels.status(status), count));
+            });
     statusTable.setItems(FXCollections.observableArrayList(byStatus));
+
     List<CountRow> byCategory = new ArrayList<>();
     report
         .listingsByCategory()
-        .forEach((category, count) -> byCategory.add(new CountRow(category, count)));
+        .forEach(
+            (category, count) -> {
+              byCategory.add(new CountRow(category, count));
+              allFigures.add(Figure.of("Объектов в категории " + category, count));
+            });
     categoryTable.setItems(FXCollections.observableArrayList(byCategory));
   }
 
@@ -109,27 +137,9 @@ public class StatisticsController implements Refreshable, Exportable {
   @Override
   public List<List<Object>> rows() {
     List<List<Object>> rows = new ArrayList<>();
-    if (report == null) {
-      return rows;
+    for (Figure figure : allFigures) {
+      rows.add(List.of(figure.name(), figure.value()));
     }
-    rows.add(List.of("Пользователей", report.totalUsers()));
-    rows.add(List.of("Объектов аренды", report.totalListings()));
-    rows.add(List.of("Заявок всего", report.totalRequests()));
-    rows.add(List.of("Отзывов", report.totalReviews()));
-    rows.add(List.of("Активных заявок", report.activeRequests()));
-    rows.add(List.of("Завершенных заявок", report.completedRequests()));
-    rows.add(List.of("Отмененных и отклоненных заявок", report.cancelledOrRejectedRequests()));
-    rows.add(List.of("Доля отмененных и отклоненных, %", report.cancelledSharePercent()));
-    rows.add(List.of("Средняя сумма заявки", report.averageTotalPrice()));
-    rows.add(List.of("Минимальная сумма заявки", report.minTotalPrice()));
-    rows.add(List.of("Максимальная сумма заявки", report.maxTotalPrice()));
-    rows.add(List.of("Средний рейтинг отзывов", ratingText(report.averageRating())));
-    report
-        .requestsByStatus()
-        .forEach((status, count) -> rows.add(List.of("Заявок: " + Labels.status(status), count)));
-    report
-        .listingsByCategory()
-        .forEach((category, count) -> rows.add(List.of("Объектов в категории " + category, count)));
     return rows;
   }
 
@@ -144,7 +154,20 @@ public class StatisticsController implements Refreshable, Exportable {
     }
   }
 
-  private String ratingText(BigDecimal rating) {
-    return rating == null ? "нет данных" : rating.toPlainString();
+  private void show(VBox box, List<Figure> figures) {
+    box.getChildren().clear();
+    for (Figure figure : figures) {
+      Label name = new Label(figure.name());
+      name.getStyleClass().add("stat-name");
+      Label value = new Label(figure.text());
+      value.getStyleClass().add("stat-figure");
+      Region spacer = new Region();
+      HBox.setHgrow(spacer, Priority.ALWAYS);
+      HBox row = new HBox(name, spacer, value);
+      row.setAlignment(Pos.CENTER_LEFT);
+      row.getStyleClass().add("stat-row");
+      box.getChildren().add(row);
+    }
+    allFigures.addAll(figures);
   }
 }
