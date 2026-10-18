@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.model.UserRole;
+import rentalmarketplace.service.RequestSort;
 
 class LabelsTest {
 
@@ -24,6 +25,16 @@ class LabelsTest {
       names.add(name);
     }
     assertEquals(RentalRequestStatus.values().length, names.size());
+  }
+
+  @Test
+  void everySortHasItsOwnRussianName() {
+    Set<String> names = new HashSet<>();
+    for (RequestSort sort : RequestSort.values()) {
+      names.add(Labels.sort(sort));
+    }
+    assertEquals(RequestSort.values().length, names.size());
+    assertEquals("", Labels.sort(null));
   }
 
   @Test

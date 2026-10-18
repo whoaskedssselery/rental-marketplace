@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.model.UserRole;
+import rentalmarketplace.service.RequestSort;
 
 public final class Labels {
   private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy");
@@ -27,6 +28,18 @@ public final class Labels {
       case COMPLETED -> "Завершена";
       case CANCELLED -> "Отменена";
       case REJECTED -> "Отклонена";
+    };
+  }
+
+  public static String sort(RequestSort sort) {
+    if (sort == null) {
+      return "";
+    }
+    return switch (sort) {
+      case CREATED_AT -> "Дата создания";
+      case TOTAL_PRICE -> "Сумма";
+      case START_DATE -> "Дата начала";
+      case LISTING_TITLE -> "Название объекта";
     };
   }
 
