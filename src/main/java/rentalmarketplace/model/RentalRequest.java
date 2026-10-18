@@ -56,16 +56,8 @@ public class RentalRequest {
     return listingId;
   }
 
-  public void setListingId(Integer listingId) {
-    this.listingId = listingId;
-  }
-
   public Integer getRenterId() {
     return renterId;
-  }
-
-  public void setRenterId(Integer renterId) {
-    this.renterId = renterId;
   }
 
   public LocalDate getStartDate() {

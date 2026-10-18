@@ -68,22 +68,6 @@ public class FormValidator {
     return amount;
   }
 
-  public Integer integerInRange(String field, String value, int min, int max) {
-    String text = value == null ? "" : value.trim();
-    int number;
-    try {
-      number = Integer.parseInt(text);
-    } catch (NumberFormatException e) {
-      result.add(field, "введите целое число от " + min + " до " + max);
-      return null;
-    }
-    if (number < min || number > max) {
-      result.add(field, "значение должно быть от " + min + " до " + max);
-      return null;
-    }
-    return number;
-  }
-
   public LocalDate requiredDate(String field, LocalDate value) {
     if (value == null) {
       result.add(field, "выберите дату");

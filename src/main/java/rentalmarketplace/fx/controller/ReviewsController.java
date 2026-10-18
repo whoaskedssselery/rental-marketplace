@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -23,7 +21,7 @@ import rentalmarketplace.fx.support.Exportable;
 import rentalmarketplace.fx.support.FormLoader;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.fx.support.Refreshable;
-import rentalmarketplace.fx.support.TableCells;
+import rentalmarketplace.fx.support.Tables;
 import rentalmarketplace.fx.support.UserMessages;
 import rentalmarketplace.service.ReviewDetails;
 import rentalmarketplace.service.ReviewQuery;
@@ -59,23 +57,13 @@ public class ReviewsController implements Refreshable, Exportable {
 
   @FXML
   private void initialize() {
-    idColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().reviewId()));
-    listingColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().listingTitle()));
-    renterColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().renterName()));
-    ratingColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().rating()));
-    commentColumn.setCellValueFactory(
-        row ->
-            new ReadOnlyObjectWrapper<>(
-                row.getValue().comment() == null ? "" : row.getValue().comment()));
-    createdColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().createdAt()));
-    createdColumn.setCellFactory(column -> TableCells.text(Labels::dateTime));
-
-    SortedList<ReviewDetails> sorted = new SortedList<>(items);
-    sorted.comparatorProperty().bind(table.comparatorProperty());
-    table.setItems(sorted);
+    Tables.column(idColumn, ReviewDetails::reviewId);
+    Tables.column(listingColumn, ReviewDetails::listingTitle);
+    Tables.column(renterColumn, ReviewDetails::renterName);
+    Tables.column(ratingColumn, ReviewDetails::rating);
+    Tables.column(commentColumn, review -> review.comment() == null ? "" : review.comment());
+    Tables.column(createdColumn, ReviewDetails::createdAt, Labels::dateTime);
+    Tables.showSorted(table, items);
     table.getSelectionModel().selectedItemProperty().addListener((o, was, now) -> onSelected());
 
     Choices.setup(ratingFilterBox, "Любая оценка", List.of(5, 4, 3, 2, 1), String::valueOf);
@@ -93,12 +81,7 @@ public class ReviewsController implements Refreshable, Exportable {
       Dialogs.error(UserMessages.of(e));
       return;
     }
-    if (selected != null) {
-      items.stream()
-          .filter(row -> row.reviewId().equals(selected.reviewId()))
-          .findFirst()
-          .ifPresent(row -> table.getSelectionModel().select(row));
-    }
+    Tables.reselect(table, items, selected, ReviewDetails::reviewId);
     boolean filtered = !ReviewQuery.all().equals(query);
     table.setPlaceholder(
         new Label(

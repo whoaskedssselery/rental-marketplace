@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -20,7 +18,7 @@ import rentalmarketplace.fx.support.Exportable;
 import rentalmarketplace.fx.support.FormLoader;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.fx.support.Refreshable;
-import rentalmarketplace.fx.support.TableCells;
+import rentalmarketplace.fx.support.Tables;
 import rentalmarketplace.fx.support.UserMessages;
 import rentalmarketplace.service.ListingDetails;
 import rentalmarketplace.service.ListingService;
@@ -54,24 +52,14 @@ public class ListingsController implements Refreshable, Exportable {
 
   @FXML
   private void initialize() {
-    idColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().listingId()));
-    titleColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().title()));
-    ownerColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().ownerName()));
-    categoryColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().category()));
-    priceColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().pricePerDay()));
-    availableColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().available()));
-    createdColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().createdAt()));
-    priceColumn.setCellFactory(column -> TableCells.text(Labels::money));
-    availableColumn.setCellFactory(column -> TableCells.text(Labels::yesNo));
-    createdColumn.setCellFactory(column -> TableCells.text(Labels::dateTime));
-
-    SortedList<ListingDetails> sorted = new SortedList<>(items);
-    sorted.comparatorProperty().bind(table.comparatorProperty());
-    table.setItems(sorted);
+    Tables.column(idColumn, ListingDetails::listingId);
+    Tables.column(titleColumn, ListingDetails::title);
+    Tables.column(ownerColumn, ListingDetails::ownerName);
+    Tables.column(categoryColumn, ListingDetails::category);
+    Tables.column(priceColumn, ListingDetails::pricePerDay, Labels::money);
+    Tables.column(availableColumn, ListingDetails::available, Labels::yesNo);
+    Tables.column(createdColumn, ListingDetails::createdAt, Labels::dateTime);
+    Tables.showSorted(table, items);
     table.getSelectionModel().selectedItemProperty().addListener((o, was, now) -> onSelected());
     relatedList.setItems(relatedRequests);
     relatedList.setPlaceholder(new Label("Выберите объект, чтобы увидеть его заявки"));
@@ -88,12 +76,7 @@ public class ListingsController implements Refreshable, Exportable {
       Dialogs.error(UserMessages.of(e));
       return;
     }
-    if (selected != null) {
-      items.stream()
-          .filter(row -> row.listingId().equals(selected.listingId()))
-          .findFirst()
-          .ifPresent(row -> table.getSelectionModel().select(row));
-    }
+    Tables.reselect(table, items, selected, ListingDetails::listingId);
     table.setPlaceholder(new Label("Объектов пока нет. Нажмите «Добавить», чтобы создать первый"));
     countLabel.setText("Объектов: " + items.size());
     onSelected();
@@ -222,7 +205,7 @@ public class ListingsController implements Refreshable, Exportable {
     try {
       List<RequestDetails> requests =
           context
-              .rentalRequestService()
+              .requestSearchService()
               .query(
                   new RequestQuery(
                       null, null, null, selected.listingId(), null, null, null, null, false));

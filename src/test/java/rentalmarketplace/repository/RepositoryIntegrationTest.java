@@ -175,4 +175,42 @@ class RepositoryIntegrationTest {
   void databaseManager_reportsAvailableDatabase() {
     assertTrue(DatabaseManager.isAvailable());
   }
+
+  @Test
+  void rentalRequestRepository_findsUpdatesAndDeletes() {
+    RentalRequest saved = requests.save(request(1, 3, RentalRequestStatus.NEW));
+
+    saved.setStatus(RentalRequestStatus.CONFIRMED);
+    saved.setTotalPrice(new BigDecimal("250.00"));
+    requests.update(saved);
+
+    RentalRequest reloaded = requests.findById(saved.getId()).orElseThrow();
+    assertEquals(RentalRequestStatus.CONFIRMED, reloaded.getStatus());
+    assertEquals(new BigDecimal("250.00"), reloaded.getTotalPrice());
+    assertTrue(requests.findAll().stream().anyMatch(r -> r.getId().equals(saved.getId())));
+
+    requests.deleteById(saved.getId());
+    assertTrue(requests.findById(saved.getId()).isEmpty());
+  }
+
+  @Test
+  void listingRepository_deleteWithRequestsGivesFriendlyMessage() {
+    requests.save(request(1, 3, RentalRequestStatus.NEW));
+
+    DatabaseAccessException error =
+        assertThrows(DatabaseAccessException.class, () -> listings.deleteById(listing.getId()));
+
+    assertTrue(error.getMessage().startsWith("Нельзя удалить объект"));
+  }
+
+  @Test
+  void userRepository_deletesUserWithoutReferences() {
+    String suffix = UUID.randomUUID().toString().substring(0, 8);
+    User lonely =
+        users.save(new User("IT Lonely", "lonely-" + suffix + "@it.test", null, UserRole.RENTER));
+
+    users.deleteById(lonely.getId());
+
+    assertTrue(users.findById(lonely.getId()).isEmpty());
+  }
 }

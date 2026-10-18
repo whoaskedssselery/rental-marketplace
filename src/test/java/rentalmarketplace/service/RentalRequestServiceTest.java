@@ -2,11 +2,9 @@ package rentalmarketplace.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import rentalmarketplace.exception.BusinessRuleException;
@@ -212,91 +210,5 @@ class RentalRequestServiceTest {
     service.delete(request.getId());
 
     assertThrows(EntityNotFoundException.class, () -> service.getById(request.getId()));
-  }
-
-  @Test
-  void searchByListing_matchesTitleCaseInsensitive() {
-    book(listing, renter, 1, 3);
-    RentalRequest scooterRequest = book(scooter, renter, 1, 3);
-
-    List<RentalRequest> found = service.searchByListing("САМОКАТ");
-
-    assertEquals(1, found.size());
-    assertEquals(scooterRequest.getId(), found.get(0).getId());
-  }
-
-  @Test
-  void searchByListing_matchesDescription() {
-    RentalRequest drillRequest = book(listing, renter, 1, 3);
-    book(scooter, renter, 1, 3);
-
-    List<RentalRequest> found = service.searchByListing("мощн");
-
-    assertEquals(List.of(drillRequest.getId()), found.stream().map(RentalRequest::getId).toList());
-  }
-
-  @Test
-  void searchByListing_withNoMatch_returnsEmptyList() {
-    book(listing, renter, 1, 3);
-
-    assertTrue(service.searchByListing("автомобиль").isEmpty());
-  }
-
-  @Test
-  void searchByRenter_matchesNameAndEmailCaseInsensitive() {
-    User another = userService.createUser("Пётр", "petr@example.com", null, UserRole.RENTER);
-    book(listing, renter, 1, 3);
-    book(scooter, another, 1, 3);
-
-    assertEquals(1, service.searchByRenter("иван").size());
-    assertEquals(1, service.searchByRenter("PETR@").size());
-  }
-
-  @Test
-  void filterByStatus_returnsOnlyRequestsWithThatStatus() {
-    RentalRequest confirmed = book(listing, renter, 1, 3);
-    book(scooter, renter, 1, 3);
-    service.changeStatus(confirmed.getId(), RentalRequestStatus.CONFIRMED);
-
-    List<RentalRequest> found = service.filterByStatus(RentalRequestStatus.CONFIRMED);
-
-    assertEquals(1, found.size());
-    assertEquals(confirmed.getId(), found.get(0).getId());
-    assertTrue(service.filterByStatus(RentalRequestStatus.COMPLETED).isEmpty());
-  }
-
-  @Test
-  void filterByListingOwner_returnsOnlyRequestsForOwnersListings() {
-    book(listing, renter, 1, 3);
-    RentalRequest scooterRequest = book(scooter, renter, 1, 3);
-
-    List<RentalRequest> found = service.filterByListingOwner(otherOwner.getId());
-
-    assertEquals(1, found.size());
-    assertEquals(scooterRequest.getId(), found.get(0).getId());
-  }
-
-  @Test
-  void sortByTotalPrice_returnsAscendingOrder() {
-    RentalRequest expensive = book(listing, renter, 1, 11);
-    RentalRequest cheap = book(scooter, renter, 1, 2);
-    RentalRequest medium = book(listing, renter, 11, 13);
-
-    List<Integer> ids = service.sortByTotalPrice().stream().map(RentalRequest::getId).toList();
-
-    assertEquals(List.of(cheap.getId(), medium.getId(), expensive.getId()), ids);
-  }
-
-  @Test
-  void sortByCreatedAt_returnsAscendingOrder() {
-    RentalRequest first = book(listing, renter, 1, 3);
-    RentalRequest second = book(scooter, renter, 1, 3);
-    RentalRequest third = book(listing, renter, 3, 5);
-    first.setCreatedAt(first.getCreatedAt().plusDays(2));
-    second.setCreatedAt(second.getCreatedAt().plusDays(1));
-
-    List<Integer> ids = service.sortByCreatedAt().stream().map(RentalRequest::getId).toList();
-
-    assertEquals(List.of(third.getId(), second.getId(), first.getId()), ids);
   }
 }

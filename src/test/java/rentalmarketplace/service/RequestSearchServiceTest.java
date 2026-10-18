@@ -18,8 +18,9 @@ import rentalmarketplace.repository.FakeListingRepository;
 import rentalmarketplace.repository.FakeRentalRequestRepository;
 import rentalmarketplace.repository.FakeUserRepository;
 
-class RequestQueryServiceTest {
+class RequestSearchServiceTest {
   private RentalRequestService service;
+  private RequestSearchService search;
   private User ivan;
   private User sergey;
   private User anna;
@@ -37,6 +38,7 @@ class RequestQueryServiceTest {
     UserService users = new UserService(new FakeUserRepository());
     ListingService listings = new ListingService(new FakeListingRepository(), users);
     service = new RentalRequestService(new FakeRentalRequestRepository(), listings, users);
+    search = new RequestSearchService(service, listings, users);
     ivan = users.createUser("Иван Петров", "ivan@example.com", null, UserRole.OWNER);
     sergey = users.createUser("Сергей Ковалев", "sergey@example.com", null, UserRole.OWNER);
     anna = users.createUser("Анна Смирнова", "anna.smirnova@example.com", null, UserRole.RENTER);
@@ -77,8 +79,8 @@ class RequestQueryServiceTest {
   }
 
   @Test
-  void getDetails_returnsEveryRequestOrderedByIdWithNames() {
-    List<RequestDetails> details = service.getDetails();
+  void query_withoutRestrictions_returnsEveryRequestOrderedByIdWithNames() {
+    List<RequestDetails> details = search.query(RequestQuery.all());
 
     assertEquals(
         List.of(
@@ -97,28 +99,28 @@ class RequestQueryServiceTest {
 
   @Test
   void query_withoutRestrictions_returnsAll() {
-    assertEquals(4, service.query(RequestQuery.all()).size());
+    assertEquals(4, search.query(RequestQuery.all()).size());
   }
 
   @Test
   void query_textSearchesListingTitleDescriptionRenterAndOwner() {
     assertEquals(
         List.of(scooterByAnna.getId(), scooterByMaria.getId()),
-        ids(service.query(query("самокат", null, null, null, null, null, false))));
+        ids(search.query(query("самокат", null, null, null, null, null, false))));
     assertEquals(
         List.of(drillByAnna.getId()),
-        ids(service.query(query("ремонта", null, null, null, null, null, false))));
+        ids(search.query(query("ремонта", null, null, null, null, null, false))));
     assertEquals(
         List.of(drillByAnna.getId(), scooterByAnna.getId()),
-        ids(service.query(query("ANNA.smirnova", null, null, null, null, null, false))));
+        ids(search.query(query("ANNA.smirnova", null, null, null, null, null, false))));
     assertEquals(
         List.of(scooterByAnna.getId(), scooterByMaria.getId(), tentByMaria.getId()),
-        ids(service.query(query("  ковалев ", null, null, null, null, null, false))));
+        ids(search.query(query("  ковалев ", null, null, null, null, null, false))));
   }
 
   @Test
   void query_textWithoutMatches_returnsEmptyList() {
-    assertTrue(service.query(query("ничего", null, null, null, null, null, false)).isEmpty());
+    assertTrue(search.query(query("ничего", null, null, null, null, null, false)).isEmpty());
   }
 
   @Test
@@ -126,20 +128,20 @@ class RequestQueryServiceTest {
     assertEquals(
         List.of(scooterByAnna.getId()),
         ids(
-            service.query(
+            search.query(
                 query(null, RentalRequestStatus.CONFIRMED, null, null, null, null, false))));
     assertEquals(
         List.of(drillByAnna.getId()),
-        ids(service.query(query(null, null, ivan.getId(), null, null, null, false))));
+        ids(search.query(query(null, null, ivan.getId(), null, null, null, false))));
     assertEquals(
         List.of(tentByMaria.getId()),
         ids(
-            service.query(
+            search.query(
                 new RequestQuery(null, null, null, tent.getId(), null, null, null, null, false))));
     assertEquals(
         List.of(scooterByMaria.getId(), tentByMaria.getId()),
         ids(
-            service.query(
+            search.query(
                 new RequestQuery(null, null, null, null, maria.getId(), null, null, null, false))));
   }
 
@@ -147,15 +149,15 @@ class RequestQueryServiceTest {
   void query_periodIncludesRequestsOverlappingItsBoundaries() {
     assertEquals(
         List.of(drillByAnna.getId(), scooterByAnna.getId()),
-        ids(service.query(query(null, null, null, day(9, 5), day(9, 5), null, false))));
+        ids(search.query(query(null, null, null, day(9, 5), day(9, 5), null, false))));
     assertEquals(
         List.of(scooterByMaria.getId()),
-        ids(service.query(query(null, null, null, day(9, 8), null, null, false))));
+        ids(search.query(query(null, null, null, day(9, 8), null, null, false))));
     assertEquals(
         List.of(tentByMaria.getId()),
-        ids(service.query(query(null, null, null, null, day(8, 31), null, false))));
+        ids(search.query(query(null, null, null, null, day(8, 31), null, false))));
     assertTrue(
-        service.query(query(null, null, null, day(10, 1), day(10, 31), null, false)).isEmpty());
+        search.query(query(null, null, null, day(10, 1), day(10, 31), null, false)).isEmpty());
   }
 
   @Test
@@ -163,7 +165,7 @@ class RequestQueryServiceTest {
     assertEquals(
         List.of(scooterByAnna.getId()),
         ids(
-            service.query(
+            search.query(
                 query(
                     "самокат",
                     RentalRequestStatus.CONFIRMED,
@@ -173,7 +175,7 @@ class RequestQueryServiceTest {
                     null,
                     false))));
     assertTrue(
-        service
+        search
             .query(query("самокат", RentalRequestStatus.COMPLETED, null, null, null, null, false))
             .isEmpty());
   }
@@ -186,14 +188,14 @@ class RequestQueryServiceTest {
             scooterByAnna.getId(),
             drillByAnna.getId(),
             tentByMaria.getId()),
-        ids(service.query(query(null, null, null, null, null, RequestSort.TOTAL_PRICE, false))));
+        ids(search.query(query(null, null, null, null, null, RequestSort.TOTAL_PRICE, false))));
     assertEquals(
         List.of(
             tentByMaria.getId(),
             drillByAnna.getId(),
             scooterByAnna.getId(),
             scooterByMaria.getId()),
-        ids(service.query(query(null, null, null, null, null, RequestSort.TOTAL_PRICE, true))));
+        ids(search.query(query(null, null, null, null, null, RequestSort.TOTAL_PRICE, true))));
   }
 
   @Test
@@ -204,17 +206,17 @@ class RequestQueryServiceTest {
             drillByAnna.getId(),
             scooterByAnna.getId(),
             scooterByMaria.getId()),
-        ids(service.query(query(null, null, null, null, null, RequestSort.START_DATE, false))));
+        ids(search.query(query(null, null, null, null, null, RequestSort.START_DATE, false))));
     assertEquals(
         List.of(
             tentByMaria.getId(),
             drillByAnna.getId(),
             scooterByAnna.getId(),
             scooterByMaria.getId()),
-        ids(service.query(query(null, null, null, null, null, RequestSort.LISTING_TITLE, false))));
+        ids(search.query(query(null, null, null, null, null, RequestSort.LISTING_TITLE, false))));
     assertEquals(
         tentByMaria.getId(),
-        ids(service.query(query(null, null, null, null, null, RequestSort.CREATED_AT, true)))
+        ids(search.query(query(null, null, null, null, null, RequestSort.CREATED_AT, true)))
             .get(0));
   }
 

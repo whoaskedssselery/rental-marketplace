@@ -27,7 +27,7 @@
         </VBox>
         <VBox spacing="4">
             <Label text="Оценка" styleClass="form-label"/>
-            <ComboBox fx:id="ratingFilterBox" prefWidth="140"/>
+            <ComboBox fx:id="ratingFilterBox" prefWidth="170"/>
         </VBox>
         <VBox spacing="4">
             <Label text="Сортировка" styleClass="form-label"/>

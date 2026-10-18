@@ -94,6 +94,7 @@
                         <exclude>rentalmarketplace/fx/support/Dialogs*</exclude>
                         <exclude>rentalmarketplace/fx/support/FormLoader*</exclude>
                         <exclude>rentalmarketplace/fx/support/TableCells*</exclude>
+                        <exclude>rentalmarketplace/fx/support/Tables*</exclude>
                         <exclude>rentalmarketplace/fx/support/Choices*</exclude>
                         <exclude>rentalmarketplace/fx/support/FileDialogs*</exclude>
                     </excludes>
