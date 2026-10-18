@@ -49,6 +49,7 @@ public class RequestsController implements Refreshable, Exportable {
   private final ObservableList<RequestDetails> items = FXCollections.observableArrayList();
   private RequestQuery query = RequestQuery.all();
 
+  @FXML private RequestFilterController requestFilterController;
   @FXML private TableView<RequestDetails> table;
   @FXML private TableColumn<RequestDetails, Integer> idColumn;
   @FXML private TableColumn<RequestDetails, String> listingColumn;
@@ -108,6 +109,7 @@ public class RequestsController implements Refreshable, Exportable {
               });
           return row;
         });
+    requestFilterController.setOnApply(this::applyQuery);
     editButton.setTooltip(new Tooltip("Менять даты можно только у новых заявок"));
     updateButtons();
     refresh();
