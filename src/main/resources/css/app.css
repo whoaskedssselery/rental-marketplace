@@ -1,19 +1,27 @@
-.root {
-    -app-bg: #f4f5f7;
-    -app-surface: #ffffff;
-    -app-border: #d8dce2;
-    -app-text: #1f2933;
-    -app-muted: #66707d;
-    -app-accent: #2563c9;
-    -app-accent-hover: #1d4fa3;
-    -app-accent-soft: #e3ecfb;
-    -app-danger: #c0392b;
-    -app-danger-hover: #992d22;
-    -app-danger-soft: #fdeceb;
-    -app-warning: #9a6700;
-    -app-warning-soft: #fff6dc;
+/*
+ * Тема приложения.
+ * Цвета и размеры заданы один раз в .root, остальные правила берут их оттуда.
+ * Акцент один (бирюзовый): главные кнопки, выбор, фокус.
+ */
 
-    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+.root {
+    -app-bg: #f3f5f4;
+    -app-surface: #ffffff;
+    -app-surface-2: #e9edeb;
+    -app-border: #d5dbd8;
+    -app-border-soft: #e8ecea;
+    -app-text: #1c2321;
+    -app-muted: #5b6662;
+
+    -app-accent: #0f766e;
+    -app-accent-hover: #115e59;
+    -app-accent-soft: #dcefec;
+
+    -app-danger: #b42318;
+    -app-danger-soft: #fbe9e7;
+    -app-warning-soft: #fdf1d6;
+
+    -fx-font-family: "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 13px;
     -fx-text-fill: -app-text;
     -fx-background-color: -app-bg;
@@ -26,6 +34,8 @@
     -fx-text-fill: -app-text;
 }
 
+/* ---------- Окно, панель инструментов, строка состояния ---------- */
+
 .main-pane {
     -fx-background-color: -app-bg;
 }
@@ -36,7 +46,7 @@
 }
 
 .app-title {
-    -fx-font-size: 17px;
+    -fx-font-size: 18px;
     -fx-font-weight: bold;
 }
 
@@ -50,7 +60,7 @@
 }
 
 .status-bar {
-    -fx-background-color: -app-surface;
+    -fx-background-color: -app-surface-2;
     -fx-border-color: -app-border transparent transparent transparent;
 }
 
@@ -59,28 +69,56 @@
     -fx-font-size: 12px;
 }
 
+/* ---------- Вкладки ---------- */
+
 .tab-pane > .tab-header-area > .tab-header-background {
-    -fx-background-color: -app-bg;
+    -fx-background-color: -app-surface-2;
+}
+
+.tab-pane > .tab-header-area {
+    -fx-padding: 0 0 0 8;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab {
     -fx-background-color: transparent;
-    -fx-padding: 6 16 6 16;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 8 18 8 18;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 0 0 2 0;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab .tab-label {
+    -fx-text-fill: -app-muted;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:hover .tab-label {
+    -fx-text-fill: -app-text;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected {
-    -fx-background-color: -app-surface;
-    -fx-border-color: -app-accent transparent transparent transparent;
-    -fx-border-width: 2 0 0 0;
+    -fx-border-color: transparent transparent -app-accent transparent;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected .tab-label {
+    -fx-text-fill: -app-text;
+    -fx-font-weight: bold;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
 }
 
 .tab-pane > .tab-content-area {
     -fx-background-color: -app-bg;
 }
 
+/* ---------- Кнопки ---------- */
+
 .button {
     -fx-background-radius: 6;
-    -fx-padding: 6 16 6 16;
+    -fx-border-radius: 6;
+    -fx-padding: 7 16 7 16;
     -fx-cursor: hand;
 }
 
@@ -94,76 +132,159 @@
     -fx-background-color: -app-accent-hover;
 }
 
+.primary-button:pressed {
+    -fx-background-color: -app-accent-hover;
+    -fx-translate-y: 1;
+}
+
 .secondary-button {
     -fx-background-color: -app-surface;
     -fx-text-fill: -app-text;
     -fx-border-color: -app-border;
-    -fx-border-radius: 6;
 }
 
 .secondary-button:hover {
     -fx-background-color: -app-accent-soft;
+    -fx-border-color: -app-accent;
 }
 
 .danger-button {
-    -fx-background-color: -app-danger;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-background-color: -app-surface;
+    -fx-text-fill: -app-danger;
+    -fx-border-color: -app-danger;
 }
 
 .danger-button:hover {
-    -fx-background-color: -app-danger-hover;
+    -fx-background-color: -app-danger-soft;
+}
+
+.button:focused {
+    -fx-border-color: -app-accent;
 }
 
 .button:disabled {
     -fx-opacity: 0.45;
 }
 
+/* ---------- Таблицы ---------- */
+
 .table-view {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 0;
     -fx-table-cell-border-color: transparent;
 }
 
 .table-view .column-header-background {
-    -fx-background-color: -app-surface;
+    -fx-background-color: -app-surface-2;
+    -fx-background-radius: 8 8 0 0;
 }
 
 .table-view .column-header,
 .table-view .filler {
-    -fx-background-color: -app-surface;
+    -fx-background-color: transparent;
     -fx-border-color: transparent transparent -app-border transparent;
-    -fx-size: 34px;
+    -fx-size: 36px;
 }
 
 .table-view .column-header .label {
+    -fx-padding: 0 10 0 10;
+    -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-text-fill: -app-muted;
+    -fx-alignment: CENTER-LEFT;
+}
+
+.table-view .column-header.numeric-column .label {
+    -fx-alignment: CENTER-RIGHT;
 }
 
 .table-row-cell {
-    -fx-cell-size: 32px;
+    -fx-cell-size: 36px;
+    -fx-background-color: -app-surface;
+    -fx-border-color: transparent transparent -app-border-soft transparent;
 }
 
-.table-row-cell:odd {
-    -fx-background-color: #f9fafb;
+.table-row-cell:hover {
+    -fx-background-color: #f4f7f6;
 }
 
 .table-row-cell:selected {
     -fx-background-color: -app-accent-soft;
 }
 
-.table-row-cell:selected .text,
-.table-row-cell:selected .label {
-    -fx-fill: -app-text;
+.table-row-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-cell {
+    -fx-padding: 0 10 0 10;
+    -fx-alignment: CENTER-LEFT;
     -fx-text-fill: -app-text;
+}
+
+.table-cell.numeric-column {
+    -fx-alignment: CENTER-RIGHT;
+}
+
+.table-row-cell:selected .table-cell,
+.table-row-cell:selected .text {
+    -fx-text-fill: -app-text;
+    -fx-fill: -app-text;
+}
+
+.table-view:focused .table-row-cell:selected {
+    -fx-background-color: -app-accent-soft;
 }
 
 .table-view .placeholder .label {
     -fx-text-fill: -app-muted;
+    -fx-font-size: 14px;
 }
+
+/* ---------- Метки статуса заявки ---------- */
+
+.status-badge {
+    -fx-padding: 2 10 2 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.status-new {
+    -fx-background-color: #e4eaf1;
+    -fx-text-fill: #33485f;
+}
+
+.status-confirmed {
+    -fx-background-color: -app-accent-soft;
+    -fx-text-fill: #0b5a54;
+}
+
+.status-active {
+    -fx-background-color: -app-warning-soft;
+    -fx-text-fill: #7a4f00;
+}
+
+.status-completed {
+    -fx-background-color: #e0f1e5;
+    -fx-text-fill: #1d6137;
+}
+
+.status-cancelled {
+    -fx-background-color: -app-surface-2;
+    -fx-text-fill: -app-muted;
+}
+
+.status-rejected {
+    -fx-background-color: -app-danger-soft;
+    -fx-text-fill: #912016;
+}
+
+/* ---------- Поля ввода ---------- */
 
 .text-field,
 .text-area,
@@ -174,6 +295,9 @@
     -fx-border-color: -app-border;
     -fx-border-radius: 6;
     -fx-background-radius: 6;
+    -fx-highlight-fill: -app-accent-soft;
+    -fx-highlight-text-fill: -app-text;
+    -fx-prompt-text-fill: #8a9490;
 }
 
 .text-field:focused,
@@ -197,17 +321,162 @@
     -fx-background-color: -app-danger-soft;
 }
 
+.combo-box-base > .arrow-button,
+.date-picker > .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 6 6 0;
+}
+
+.combo-box-base > .arrow-button:hover,
+.date-picker > .arrow-button:hover {
+    -fx-background-color: -app-accent-soft;
+}
+
+.combo-box-popup > .list-view,
+.date-picker-popup {
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(28, 35, 33, 0.14), 14, 0, 0, 4);
+}
+
+.combo-box-popup .list-cell:filled:hover,
+.date-picker-popup .day-cell:hover {
+    -fx-background-color: -app-accent-soft;
+    -fx-text-fill: -app-text;
+}
+
+.combo-box-popup .list-cell:filled:selected,
+.date-picker-popup .day-cell:selected {
+    -fx-background-color: -app-accent;
+    -fx-text-fill: white;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -app-accent;
+    -fx-border-color: -app-accent;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+/* ---------- Панель фильтров и разделы ---------- */
+
 .filter-bar {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
     -fx-padding: 10 12 10 12;
 }
 
 .form-label {
     -fx-text-fill: -app-muted;
+    -fx-font-size: 12px;
 }
+
+.panel {
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 14 16 14 16;
+}
+
+.stat-row {
+    -fx-padding: 6 0 6 0;
+    -fx-border-color: transparent transparent -app-border-soft transparent;
+}
+
+.stat-name {
+    -fx-text-fill: -app-muted;
+}
+
+.stat-figure {
+    -fx-font-weight: bold;
+}
+
+/* ---------- Списки ---------- */
+
+.list-view {
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 0;
+}
+
+.list-cell {
+    -fx-padding: 7 12 7 12;
+    -fx-background-color: transparent;
+    -fx-text-fill: -app-text;
+}
+
+.list-view .list-cell:filled:selected {
+    -fx-background-color: -app-accent-soft;
+    -fx-text-fill: -app-text;
+}
+
+.list-view .placeholder .label {
+    -fx-text-fill: -app-muted;
+}
+
+/* ---------- Полосы прокрутки ---------- */
+
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 2;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 12;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #c3cbc7;
+    -fx-background-radius: 6;
+    -fx-background-insets: 0;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #98a39e;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-padding: 0;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: -app-bg;
+}
+
+/* ---------- Сообщения и диалоги ---------- */
 
 .error-text {
     -fx-text-fill: -app-danger;
@@ -217,28 +486,17 @@
 }
 
 .warning-text {
-    -fx-text-fill: -app-warning;
+    -fx-text-fill: #7a4f00;
     -fx-background-color: -app-warning-soft;
     -fx-background-radius: 6;
     -fx-padding: 8 12 8 12;
 }
 
-.stat-card {
-    -fx-background-color: -app-surface;
-    -fx-border-color: -app-border;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-    -fx-padding: 14 18 14 18;
-}
-
-.stat-value {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-text-fill: -app-accent;
-}
-
-.stat-caption {
-    -fx-text-fill: -app-muted;
+.tooltip {
+    -fx-background-color: -app-text;
+    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-font-size: 12px;
 }
 
 .dialog-pane {
@@ -247,13 +505,36 @@
 
 .dialog-pane > .header-panel {
     -fx-background-color: -app-surface;
+    -fx-padding: 14 16 4 16;
 }
 
 .dialog-pane > .header-panel .label {
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-font-weight: bold;
 }
 
+.dialog-pane > .content {
+    -fx-padding: 8 16 12 16;
+}
+
+.dialog-pane .button {
+    -fx-background-color: -app-surface;
+    -fx-text-fill: -app-text;
+    -fx-border-color: -app-border;
+}
+
+.dialog-pane .button:default {
+    -fx-background-color: -app-accent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+}
+
+.dialog-pane .button:default:hover {
+    -fx-background-color: -app-accent-hover;
+}
+
 .dialog-pane > .button-bar > .container {
-    -fx-background-color: -app-bg;
+    -fx-background-color: -app-surface-2;
+    -fx-padding: 10 12 10 12;
 }
