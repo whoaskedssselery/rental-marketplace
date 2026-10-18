@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="rentalmarketplace.fx.controller.ListingFormController"
+      spacing="12" prefWidth="480">
+    <padding>
+        <Insets top="4" right="4" bottom="4" left="4"/>
+    </padding>
+    <GridPane hgap="12" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="110"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Владелец" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="ownerBox" maxWidth="Infinity" promptText="Выберите владельца"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="Название" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="titleField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Описание" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextArea fx:id="descriptionArea" prefRowCount="3" wrapText="true"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Цена за день" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="priceField" promptText="Например, 500 или 500.50"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <Label text="Категория" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="categoryBox" editable="true" maxWidth="Infinity"
+                  promptText="Выберите или введите новую"
+                  GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        <CheckBox fx:id="availableBox" text="Доступен для аренды"
+                  GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+    </GridPane>
+</VBox>
