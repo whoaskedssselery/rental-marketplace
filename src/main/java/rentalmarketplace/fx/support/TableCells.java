@@ -1,6 +1,7 @@
 package rentalmarketplace.fx.support;
 
 import java.util.function.Function;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 
 public final class TableCells {
@@ -12,6 +13,25 @@ public final class TableCells {
       protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
         setText(empty || item == null ? null : format.apply(item));
+      }
+    };
+  }
+
+  public static <R, T> TableCell<R, T> badge(
+      Function<T, String> format, Function<T, String> styleClass) {
+    return new TableCell<>() {
+      private final Label badge = new Label();
+
+      @Override
+      protected void updateItem(T item, boolean empty) {
+        super.updateItem(item, empty);
+        if (empty || item == null) {
+          setGraphic(null);
+          return;
+        }
+        badge.setText(format.apply(item));
+        badge.getStyleClass().setAll("status-badge", styleClass.apply(item));
+        setGraphic(badge);
       }
     };
   }

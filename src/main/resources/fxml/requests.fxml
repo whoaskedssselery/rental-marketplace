@@ -37,8 +37,8 @@
             <TableColumn fx:id="ownerColumn" text="Владелец" prefWidth="150"/>
             <TableColumn fx:id="startColumn" text="Начало" prefWidth="95"/>
             <TableColumn fx:id="endColumn" text="Конец" prefWidth="95"/>
-            <TableColumn fx:id="statusColumn" text="Статус" prefWidth="115"/>
-            <TableColumn fx:id="totalColumn" text="Сумма" prefWidth="120"/>
+            <TableColumn fx:id="statusColumn" text="Статус" prefWidth="140"/>
+            <TableColumn fx:id="totalColumn" styleClass="numeric-column" text="Сумма" prefWidth="120"/>
             <TableColumn fx:id="createdColumn" text="Создана" prefWidth="130"/>
         </columns>
         <columnResizePolicy>

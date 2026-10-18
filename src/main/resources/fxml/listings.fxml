@@ -31,7 +31,7 @@
             <TableColumn fx:id="titleColumn" text="Название" prefWidth="230"/>
             <TableColumn fx:id="ownerColumn" text="Владелец" prefWidth="150"/>
             <TableColumn fx:id="categoryColumn" text="Категория" prefWidth="120"/>
-            <TableColumn fx:id="priceColumn" text="Цена за день" prefWidth="120"/>
+            <TableColumn fx:id="priceColumn" styleClass="numeric-column" text="Цена за день" prefWidth="120"/>
             <TableColumn fx:id="availableColumn" text="Доступен" prefWidth="90"/>
             <TableColumn fx:id="createdColumn" text="Создан" prefWidth="130"/>
         </columns>
