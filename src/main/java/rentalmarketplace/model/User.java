@@ -2,10 +2,7 @@ package rentalmarketplace.model;
 
 import java.time.LocalDateTime;
 
-public class User implements Displayable {
-  private static final String ROW_FORMAT = "%-4s %-25s %-30s %-16s %-8s %-20s";
-  public static final String TABLE_HEADER =
-      String.format(ROW_FORMAT, "id", "Имя", "Email", "Телефон", "Роль", "Создан");
+public class User {
 
   private Integer id;
   private String fullName;
@@ -79,22 +76,5 @@ public class User implements Displayable {
 
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
-  }
-
-  @Override
-  public String toTableRow() {
-    return String.format(
-        ROW_FORMAT,
-        id == null ? "-" : id,
-        fullName,
-        email,
-        phone == null || phone.isBlank() ? "-" : phone,
-        role,
-        createdAt == null ? "-" : createdAt);
-  }
-
-  @Override
-  public String toString() {
-    return toTableRow();
   }
 }

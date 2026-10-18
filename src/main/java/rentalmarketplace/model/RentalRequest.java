@@ -4,11 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class RentalRequest implements Displayable {
-  private static final String ROW_FORMAT = "%-4s %-8s %-10s %-12s %-12s %-10s %-10s %-20s";
-  public static final String TABLE_HEADER =
-      String.format(
-          ROW_FORMAT, "id", "Объект", "Арендатор", "Начало", "Конец", "Статус", "Сумма", "Создана");
+public class RentalRequest {
 
   private Integer id;
   private Integer listingId;
@@ -110,24 +106,5 @@ public class RentalRequest implements Displayable {
 
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
-  }
-
-  @Override
-  public String toTableRow() {
-    return String.format(
-        ROW_FORMAT,
-        id == null ? "-" : id,
-        listingId == null ? "-" : listingId,
-        renterId == null ? "-" : renterId,
-        startDate == null ? "-" : startDate,
-        endDate == null ? "-" : endDate,
-        status == null ? "-" : status,
-        totalPrice == null ? "-" : totalPrice,
-        createdAt == null ? "-" : createdAt);
-  }
-
-  @Override
-  public String toString() {
-    return toTableRow();
   }
 }

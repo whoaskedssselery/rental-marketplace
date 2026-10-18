@@ -21,7 +21,6 @@ class AppContextTest {
     assertNotNull(context.reviewService());
     assertNotNull(context.statisticsService());
     assertNotNull(context.exportService());
-    assertNotNull(context.reportService());
   }
 
   @Test
