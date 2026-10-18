@@ -1,6 +1,7 @@
 package rentalmarketplace.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -234,5 +235,28 @@ class RequestQueryServiceTest {
     assertTrue(service.allowedTransitions(RentalRequestStatus.COMPLETED).isEmpty());
     assertTrue(service.allowedTransitions(RentalRequestStatus.CANCELLED).isEmpty());
     assertTrue(service.allowedTransitions(RentalRequestStatus.REJECTED).isEmpty());
+  }
+
+  @Test
+  void canChangeDates_onlyForNewRequests() {
+    assertTrue(service.canChangeDates(RentalRequestStatus.NEW));
+    assertFalse(service.canChangeDates(RentalRequestStatus.CONFIRMED));
+    assertFalse(service.canChangeDates(RentalRequestStatus.COMPLETED));
+  }
+
+  @Test
+  void estimateTotal_multipliesPriceByDays() {
+    assertEquals(
+        new BigDecimal("2000"),
+        service.estimateTotal(drill.getId(), day(9, 1), day(9, 5)).orElseThrow());
+  }
+
+  @Test
+  void estimateTotal_withIncompleteOrInvalidDates_isEmpty() {
+    assertTrue(service.estimateTotal(null, day(9, 1), day(9, 5)).isEmpty());
+    assertTrue(service.estimateTotal(drill.getId(), null, day(9, 5)).isEmpty());
+    assertTrue(service.estimateTotal(drill.getId(), day(9, 1), null).isEmpty());
+    assertTrue(service.estimateTotal(drill.getId(), day(9, 5), day(9, 5)).isEmpty());
+    assertTrue(service.estimateTotal(drill.getId(), day(9, 5), day(9, 1)).isEmpty());
   }
 }
