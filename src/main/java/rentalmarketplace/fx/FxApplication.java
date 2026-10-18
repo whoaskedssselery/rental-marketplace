@@ -1,8 +1,6 @@
 package rentalmarketplace.fx;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
@@ -11,7 +9,6 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rentalmarketplace.exception.DatabaseAccessException;
 import rentalmarketplace.util.DatabaseManager;
 
 public class FxApplication extends Application {
@@ -20,7 +17,7 @@ public class FxApplication extends Application {
 
   @Override
   public void start(Stage stage) {
-    if (!isDatabaseAvailable()) {
+    if (!DatabaseManager.isAvailable()) {
       showStartupError(
           "Не удалось подключиться к базе данных",
           "Проверьте, что Docker запущен и контейнер с PostgreSQL работает "
@@ -41,15 +38,6 @@ public class FxApplication extends Application {
       LOG.error("Не удалось построить главное окно", e);
       showStartupError("Не удалось открыть главное окно", "Подробности записаны в журнал.");
       Platform.exit();
-    }
-  }
-
-  private boolean isDatabaseAvailable() {
-    try (Connection connection = DatabaseManager.getConnection()) {
-      return connection.isValid(2);
-    } catch (DatabaseAccessException | SQLException e) {
-      LOG.error("База данных недоступна", e);
-      return false;
     }
   }
 

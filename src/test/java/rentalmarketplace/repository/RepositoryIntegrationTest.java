@@ -179,4 +179,9 @@ class RepositoryIntegrationTest {
 
     assertFalse(reviews.findByRequestId(completed.getId()).isPresent());
   }
+
+  @Test
+  void databaseManager_reportsAvailableDatabase() {
+    assertTrue(DatabaseManager.isAvailable());
+  }
 }
