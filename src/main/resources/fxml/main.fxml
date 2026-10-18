@@ -21,6 +21,8 @@
             <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="refreshButton" text="Обновить" onAction="#onRefresh"
                     styleClass="primary-button"/>
+            <Button fx:id="exportAllButton" text="Экспорт всех вкладок" onAction="#onExportAll"
+                    styleClass="secondary-button"/>
             <Button fx:id="exportButton" text="Экспорт" onAction="#onExport"
                     styleClass="secondary-button"/>
         </HBox>

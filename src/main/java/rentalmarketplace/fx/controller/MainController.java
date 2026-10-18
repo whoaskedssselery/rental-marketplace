@@ -1,18 +1,28 @@
 package rentalmarketplace.fx.controller;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rentalmarketplace.fx.AppContext;
+import rentalmarketplace.fx.support.Dialogs;
 import rentalmarketplace.fx.support.Exportable;
+import rentalmarketplace.fx.support.FileDialogs;
 import rentalmarketplace.fx.support.Refreshable;
+import rentalmarketplace.fx.support.UserMessages;
+import rentalmarketplace.service.SheetData;
 
 public class MainController {
   private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+
+  private final AppContext context;
 
   @FXML private TabPane tabPane;
   @FXML private Button exportButton;
@@ -25,6 +35,10 @@ public class MainController {
   @FXML private Object statisticsController;
 
   private List<Object> tabControllers;
+
+  public MainController(AppContext context) {
+    this.context = context;
+  }
 
   @FXML
   private void initialize() {
@@ -59,7 +73,40 @@ public class MainController {
 
   @FXML
   private void onExport() {
-    statusLabel.setText("Экспорт данных будет подключен в задаче КР2-09");
+    if (activeController() instanceof Exportable exportable) {
+      export(List.of(toSheet(exportable)), exportable.exportName());
+    }
+  }
+
+  @FXML
+  private void onExportAll() {
+    List<SheetData> sheets = new ArrayList<>();
+    for (Object controller : tabControllers) {
+      if (controller instanceof Exportable exportable) {
+        sheets.add(toSheet(exportable));
+      }
+    }
+    export(sheets, "Все-данные");
+  }
+
+  private SheetData toSheet(Exportable exportable) {
+    return new SheetData(exportable.exportName(), exportable.headers(), exportable.rows());
+  }
+
+  private void export(List<SheetData> sheets, String baseName) {
+    Optional<Path> file = FileDialogs.chooseXlsxToSave(tabPane.getScene().getWindow(), baseName);
+    if (file.isEmpty()) {
+      return;
+    }
+    try {
+      context.exportService().export(sheets, file.get());
+    } catch (RuntimeException e) {
+      LOG.error("Не удалось выгрузить данные", e);
+      Dialogs.error(UserMessages.of(e));
+      return;
+    }
+    statusLabel.setText("Файл сохранен: " + file.get());
+    Dialogs.message("Экспорт выполнен", "Файл сохранен:\n" + file.get());
   }
 
   private void onTabChanged() {

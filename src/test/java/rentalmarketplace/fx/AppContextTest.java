@@ -20,6 +20,7 @@ class AppContextTest {
     assertNotNull(context.rentalRequestService());
     assertNotNull(context.reviewService());
     assertNotNull(context.statisticsService());
+    assertNotNull(context.exportService());
     assertNotNull(context.reportService());
   }
 
