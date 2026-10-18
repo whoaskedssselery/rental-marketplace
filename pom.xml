@@ -99,6 +99,7 @@
                     <excludes>
                         <exclude>rentalmarketplace/fx/controller/**</exclude>
                         <exclude>rentalmarketplace/fx/FxApplication*</exclude>
+                        <exclude>rentalmarketplace/fx/support/Dialogs*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
