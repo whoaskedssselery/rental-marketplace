@@ -111,20 +111,6 @@ class FormValidatorTest {
   }
 
   @Test
-  void integerInRangeChecksBoundaries() {
-    FormValidator validator = new FormValidator();
-
-    assertEquals(1, validator.integerInRange("Оценка", "1", 1, 5));
-    assertEquals(5, validator.integerInRange("Оценка", "5", 1, 5));
-    assertTrue(validator.result().isValid());
-
-    assertNull(validator.integerInRange("Оценка", "0", 1, 5));
-    assertNull(validator.integerInRange("Оценка", "6", 1, 5));
-    assertNull(validator.integerInRange("Оценка", "x", 1, 5));
-    assertEquals(3, validator.result().errors().size());
-  }
-
-  @Test
   void requiredDateRejectsNull() {
     FormValidator validator = new FormValidator();
 

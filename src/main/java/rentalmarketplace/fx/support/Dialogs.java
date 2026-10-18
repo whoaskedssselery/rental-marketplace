@@ -41,10 +41,6 @@ public final class Dialogs {
     show(Alert.AlertType.INFORMATION, header, message);
   }
 
-  public static void info(String message) {
-    show(Alert.AlertType.INFORMATION, "Готово", message);
-  }
-
   public static <T> Optional<T> form(
       String title, Node content, Supplier<ValidationResult> validator, Supplier<T> resultFactory) {
     ButtonType save = new ButtonType("Сохранить", ButtonBar.ButtonData.OK_DONE);

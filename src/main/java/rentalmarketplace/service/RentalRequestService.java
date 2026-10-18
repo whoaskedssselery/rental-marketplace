@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import rentalmarketplace.exception.BusinessRuleException;
@@ -102,53 +101,6 @@ public class RentalRequestService {
     rentalRequestRepository.deleteById(id);
   }
 
-  public List<RentalRequest> searchByListing(String query) {
-    String text = normalize(query);
-    Map<Integer, Listing> listingsById =
-        listingService.getAllListings().stream()
-            .collect(Collectors.toMap(Listing::getId, Function.identity()));
-    return getAll().stream()
-        .filter(request -> matchesListing(listingsById.get(request.getListingId()), text))
-        .toList();
-  }
-
-  public List<RentalRequest> searchByRenter(String query) {
-    String text = normalize(query);
-    Map<Integer, User> usersById =
-        userService.getAllUsers().stream()
-            .collect(Collectors.toMap(User::getId, Function.identity()));
-    return getAll().stream()
-        .filter(request -> matchesRenter(usersById.get(request.getRenterId()), text))
-        .toList();
-  }
-
-  public List<RentalRequest> filterByStatus(RentalRequestStatus status) {
-    return getAll().stream().filter(request -> request.getStatus() == status).toList();
-  }
-
-  public List<RentalRequest> filterByListingOwner(Integer ownerId) {
-    Set<Integer> ownedListingIds =
-        listingService.getAllListings().stream()
-            .filter(listing -> listing.getOwnerId().equals(ownerId))
-            .map(Listing::getId)
-            .collect(Collectors.toSet());
-    return getAll().stream()
-        .filter(request -> ownedListingIds.contains(request.getListingId()))
-        .toList();
-  }
-
-  public List<RentalRequest> sortByCreatedAt() {
-    return getAll().stream()
-        .sorted(
-            Comparator.comparing(
-                RentalRequest::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())))
-        .toList();
-  }
-
-  public List<RentalRequest> sortByTotalPrice() {
-    return getAll().stream().sorted(Comparator.comparing(RentalRequest::getTotalPrice)).toList();
-  }
-
   public boolean canChangeDates(RentalRequestStatus status) {
     return status == RentalRequestStatus.NEW;
   }
@@ -160,10 +112,6 @@ public class RentalRequestService {
     }
     Listing listing = listingService.getListingById(listingId);
     return Optional.of(calculateTotal(listing, startDate, endDate));
-  }
-
-  public List<RequestDetails> getDetails() {
-    return query(RequestQuery.all());
   }
 
   public List<RequestDetails> query(RequestQuery query) {
@@ -248,18 +196,6 @@ public class RentalRequestService {
 
   private String normalize(String query) {
     return query == null ? "" : query.trim().toLowerCase();
-  }
-
-  private boolean matchesListing(Listing listing, String text) {
-    return listing != null
-        && (containsIgnoreCase(listing.getTitle(), text)
-            || containsIgnoreCase(listing.getDescription(), text));
-  }
-
-  private boolean matchesRenter(User renter, String text) {
-    return renter != null
-        && (containsIgnoreCase(renter.getFullName(), text)
-            || containsIgnoreCase(renter.getEmail(), text));
   }
 
   private boolean containsIgnoreCase(String value, String lowerCaseText) {

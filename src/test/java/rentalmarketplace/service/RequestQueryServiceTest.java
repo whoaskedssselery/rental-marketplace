@@ -77,8 +77,8 @@ class RequestQueryServiceTest {
   }
 
   @Test
-  void getDetails_returnsEveryRequestOrderedByIdWithNames() {
-    List<RequestDetails> details = service.getDetails();
+  void query_withoutRestrictions_returnsEveryRequestOrderedByIdWithNames() {
+    List<RequestDetails> details = service.query(RequestQuery.all());
 
     assertEquals(
         List.of(
