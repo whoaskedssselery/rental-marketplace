@@ -1,9 +1,3 @@
-/*
- * Тема приложения.
- * Цвета и размеры заданы один раз в .root, остальные правила берут их оттуда.
- * Акцент один (бирюзовый): главные кнопки, выбор, фокус.
- */
-
 .root {
     -app-bg: #f3f5f4;
     -app-surface: #ffffff;
@@ -33,8 +27,6 @@
 .label {
     -fx-text-fill: -app-text;
 }
-
-/* ---------- Окно, панель инструментов, строка состояния ---------- */
 
 .main-pane {
     -fx-background-color: -app-bg;
@@ -68,8 +60,6 @@
     -fx-text-fill: -app-muted;
     -fx-font-size: 12px;
 }
-
-/* ---------- Вкладки ---------- */
 
 .tab-pane > .tab-header-area > .tab-header-background {
     -fx-background-color: -app-surface-2;
@@ -112,8 +102,6 @@
 .tab-pane > .tab-content-area {
     -fx-background-color: -app-bg;
 }
-
-/* ---------- Кнопки ---------- */
 
 .button {
     -fx-background-radius: 6;
@@ -165,8 +153,6 @@
 .button:disabled {
     -fx-opacity: 0.45;
 }
-
-/* ---------- Таблицы ---------- */
 
 .table-view {
     -fx-background-color: -app-surface;
@@ -245,8 +231,6 @@
     -fx-font-size: 14px;
 }
 
-/* ---------- Метки статуса заявки ---------- */
-
 .status-badge {
     -fx-padding: 2 10 2 10;
     -fx-background-radius: 10;
@@ -283,8 +267,6 @@
     -fx-background-color: -app-danger-soft;
     -fx-text-fill: #912016;
 }
-
-/* ---------- Поля ввода ---------- */
 
 .text-field,
 .text-area,
@@ -362,8 +344,6 @@
     -fx-background-color: white;
 }
 
-/* ---------- Панель фильтров и разделы ---------- */
-
 .filter-bar {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
@@ -398,8 +378,6 @@
     -fx-font-weight: bold;
 }
 
-/* ---------- Списки ---------- */
-
 .list-view {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
@@ -422,8 +400,6 @@
 .list-view .placeholder .label {
     -fx-text-fill: -app-muted;
 }
-
-/* ---------- Полосы прокрутки ---------- */
 
 .scroll-bar {
     -fx-background-color: transparent;
@@ -475,8 +451,6 @@
 .scroll-pane > .viewport {
     -fx-background-color: -app-bg;
 }
-
-/* ---------- Сообщения и диалоги ---------- */
 
 .error-text {
     -fx-text-fill: -app-danger;
