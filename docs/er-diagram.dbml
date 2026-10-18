@@ -1,0 +1,45 @@
+// Исходник ER-диаграммы для dbdiagram.io (docs/er-diagram.png)
+
+Table users {
+  id integer [primary key]
+  full_name varchar
+  email varchar [unique]
+  phone varchar
+  role varchar
+  created_at timestamp
+}
+
+Table listings {
+  id integer [primary key]
+  owner_id integer [not null]
+  title varchar
+  description text
+  price_per_day decimal
+  category varchar
+  available boolean
+  created_at timestamp
+}
+
+Table rental_requests {
+  id integer [primary key]
+  listing_id integer [not null]
+  renter_id integer [not null]
+  start_date date
+  end_date date
+  status varchar
+  total_price decimal
+  created_at timestamp
+}
+
+Table reviews {
+  id integer [primary key]
+  request_id integer [not null, unique]
+  rating integer
+  comment text
+  created_at timestamp
+}
+
+Ref: listings.owner_id > users.id
+Ref: rental_requests.listing_id > listings.id
+Ref: rental_requests.renter_id > users.id
+Ref: reviews.request_id - rental_requests.id
