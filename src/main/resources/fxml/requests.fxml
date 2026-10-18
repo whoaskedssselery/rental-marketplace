@@ -15,6 +15,7 @@
     <padding>
         <Insets top="12" right="12" bottom="12" left="12"/>
     </padding>
+    <fx:include fx:id="requestFilter" source="request-filter.fxml"/>
     <HBox alignment="CENTER_LEFT" spacing="8">
         <Button text="Добавить" onAction="#onAdd" styleClass="primary-button"/>
         <Button fx:id="editButton" text="Изменить даты" onAction="#onEdit"
