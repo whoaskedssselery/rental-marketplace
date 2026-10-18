@@ -104,7 +104,7 @@ public class RequestsController implements Refreshable, Exportable {
   public void refresh() {
     RequestDetails selected = table.getSelectionModel().getSelectedItem();
     try {
-      items.setAll(service.query(query));
+      items.setAll(context.requestSearchService().query(query));
     } catch (RuntimeException e) {
       Dialogs.error(UserMessages.of(e));
       return;

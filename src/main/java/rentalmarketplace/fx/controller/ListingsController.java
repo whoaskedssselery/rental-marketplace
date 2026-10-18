@@ -205,7 +205,7 @@ public class ListingsController implements Refreshable, Exportable {
     try {
       List<RequestDetails> requests =
           context
-              .rentalRequestService()
+              .requestSearchService()
               .query(
                   new RequestQuery(
                       null, null, null, selected.listingId(), null, null, null, null, false));

@@ -212,7 +212,7 @@ public class UsersController implements Refreshable, Exportable {
       listingsTitle.setText("Объекты пользователя: " + listings.size());
       List<RequestDetails> requests =
           context
-              .rentalRequestService()
+              .requestSearchService()
               .query(
                   new RequestQuery(
                       null, null, null, null, selected.getId(), null, null, null, false));
