@@ -11,6 +11,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public final class Dialogs {
@@ -27,6 +28,8 @@ public final class Dialogs {
     alert.setHeaderText(title);
     alert.setGraphic(null);
     alert.getDialogPane().getStylesheets().add(stylesheet());
+    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+    alert.getDialogPane().setPrefWidth(440);
     return alert.showAndWait().filter(button -> button == yes).isPresent();
   }
 
@@ -132,6 +135,8 @@ public final class Dialogs {
     alert.setHeaderText(header);
     alert.setGraphic(null);
     alert.getDialogPane().getStylesheets().add(stylesheet());
+    alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+    alert.getDialogPane().setPrefWidth(440);
     alert.showAndWait();
   }
 

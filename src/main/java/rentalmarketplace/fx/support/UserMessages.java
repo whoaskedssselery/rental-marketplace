@@ -10,11 +10,16 @@ import rentalmarketplace.exception.ExportException;
 public final class UserMessages {
   private static final Logger LOG = LoggerFactory.getLogger(UserMessages.class);
   private static final String CONNECTION_PREFIX = "Не удалось подключиться";
+  private static final String REFUSAL_PREFIX = "Нельзя ";
 
   private UserMessages() {}
 
   public static String of(Throwable error) {
     if (error instanceof BusinessRuleException || error instanceof EntityNotFoundException) {
+      return error.getMessage();
+    }
+    if (error instanceof DatabaseAccessException && isReadableRefusal(error)) {
+      LOG.warn("Операция отклонена: {}", error.getMessage());
       return error.getMessage();
     }
     LOG.error("Ошибка при выполнении операции", error);
@@ -28,6 +33,11 @@ public final class UserMessages {
           + "и что в выбранную папку можно записывать.";
     }
     return "Произошла непредвиденная ошибка. Подробности записаны в журнал.";
+  }
+
+  private static boolean isReadableRefusal(Throwable error) {
+    String message = error.getMessage();
+    return message != null && message.startsWith(REFUSAL_PREFIX);
   }
 
   private static boolean isConnectionProblem(Throwable error) {

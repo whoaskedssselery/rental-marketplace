@@ -1,23 +1,18 @@
 package rentalmarketplace.fx.controller;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -25,14 +20,14 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.util.StringConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rentalmarketplace.fx.AppContext;
 import rentalmarketplace.fx.support.Dialogs;
 import rentalmarketplace.fx.support.Exportable;
+import rentalmarketplace.fx.support.FormLoader;
 import rentalmarketplace.fx.support.FormValidator;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.fx.support.Refreshable;
+import rentalmarketplace.fx.support.TableCells;
 import rentalmarketplace.fx.support.UserMessages;
 import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.service.RentalRequestService;
@@ -40,9 +35,6 @@ import rentalmarketplace.service.RequestDetails;
 import rentalmarketplace.service.RequestQuery;
 
 public class RequestsController implements Refreshable, Exportable {
-  private static final Logger LOG = LoggerFactory.getLogger(RequestsController.class);
-
-  private record LoadedForm(Node node, RequestFormController controller) {}
 
   private final AppContext context;
   private final RentalRequestService service;
@@ -86,11 +78,11 @@ public class RequestsController implements Refreshable, Exportable {
         row -> new ReadOnlyObjectWrapper<>(row.getValue().totalPrice()));
     createdColumn.setCellValueFactory(
         row -> new ReadOnlyObjectWrapper<>(row.getValue().createdAt()));
-    startColumn.setCellFactory(column -> textCell(Labels::date));
-    endColumn.setCellFactory(column -> textCell(Labels::date));
-    statusColumn.setCellFactory(column -> textCell(Labels::status));
-    totalColumn.setCellFactory(column -> textCell(Labels::money));
-    createdColumn.setCellFactory(column -> textCell(Labels::dateTime));
+    startColumn.setCellFactory(column -> TableCells.text(Labels::date));
+    endColumn.setCellFactory(column -> TableCells.text(Labels::date));
+    statusColumn.setCellFactory(column -> TableCells.text(Labels::status));
+    totalColumn.setCellFactory(column -> TableCells.text(Labels::money));
+    createdColumn.setCellFactory(column -> TableCells.text(Labels::dateTime));
 
     SortedList<RequestDetails> sorted = new SortedList<>(items);
     sorted.comparatorProperty().bind(table.comparatorProperty());
@@ -181,7 +173,8 @@ public class RequestsController implements Refreshable, Exportable {
 
   @FXML
   private void onAdd() {
-    LoadedForm form = loadForm();
+    FormLoader.Loaded<RequestFormController> form =
+        FormLoader.<RequestFormController>load(context, "/fxml/request-form.fxml").orElse(null);
     if (form == null) {
       return;
     }
@@ -207,7 +200,8 @@ public class RequestsController implements Refreshable, Exportable {
     if (selected == null) {
       return;
     }
-    LoadedForm form = loadForm();
+    FormLoader.Loaded<RequestFormController> form =
+        FormLoader.<RequestFormController>load(context, "/fxml/request-form.fxml").orElse(null);
     if (form == null) {
       return;
     }
@@ -337,27 +331,5 @@ public class RequestsController implements Refreshable, Exportable {
     statusButton.setDisable(none || service.allowedTransitions(selected.status()).isEmpty());
     detailsButton.setDisable(none);
     deleteButton.setDisable(none);
-  }
-
-  private LoadedForm loadForm() {
-    try {
-      FXMLLoader loader = context.loader("/fxml/request-form.fxml");
-      Node node = loader.load();
-      return new LoadedForm(node, loader.getController());
-    } catch (IOException | RuntimeException e) {
-      LOG.error("Не удалось открыть форму заявки", e);
-      Dialogs.error(UserMessages.of(e));
-      return null;
-    }
-  }
-
-  private static <T> TableCell<RequestDetails, T> textCell(Function<T, String> format) {
-    return new TableCell<>() {
-      @Override
-      protected void updateItem(T item, boolean empty) {
-        super.updateItem(item, empty);
-        setText(empty || item == null ? null : format.apply(item));
-      }
-    };
   }
 }

@@ -99,4 +99,32 @@ class ListingServiceTest {
   void deleteListing_withNonExistentId_throwsEntityNotFoundException() {
     assertThrows(EntityNotFoundException.class, () -> listingService.deleteListing(999));
   }
+
+  @Test
+  void getDetails_addsOwnerName() {
+    listingService.createListing(ownerId, "Дрель", "d", BigDecimal.valueOf(100), "Инструменты");
+
+    ListingDetails details = listingService.getDetails().get(0);
+
+    assertEquals("Владелец", details.ownerName());
+    assertEquals("Дрель", details.title());
+    assertEquals(ownerId, details.ownerId());
+  }
+
+  @Test
+  void getCategories_returnsDistinctSortedNames() {
+    listingService.createListing(ownerId, "А", "d", BigDecimal.TEN, "Спорт");
+    listingService.createListing(ownerId, "Б", "d", BigDecimal.TEN, "Инструменты");
+    listingService.createListing(ownerId, "В", "d", BigDecimal.TEN, "Спорт");
+
+    assertEquals(java.util.List.of("Инструменты", "Спорт"), listingService.getCategories());
+  }
+
+  @Test
+  void createListing_canStartUnavailable() {
+    Listing saved =
+        listingService.createListing(ownerId, "Дрель", "d", BigDecimal.TEN, "Инструменты", false);
+
+    assertFalse(saved.isAvailable());
+  }
 }
