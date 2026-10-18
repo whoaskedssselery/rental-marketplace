@@ -96,6 +96,10 @@ public class ListingService {
         .toList();
   }
 
+  public List<ListingDetails> getDetailsByOwner(Integer ownerId) {
+    return getDetails().stream().filter(details -> details.ownerId().equals(ownerId)).toList();
+  }
+
   public List<String> getCategories() {
     return getAllListings().stream()
         .map(Listing::getCategory)

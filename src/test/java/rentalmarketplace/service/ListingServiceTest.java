@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,5 +127,13 @@ class ListingServiceTest {
         listingService.createListing(ownerId, "Дрель", "d", BigDecimal.TEN, "Инструменты", false);
 
     assertFalse(saved.isAvailable());
+  }
+
+  @Test
+  void getDetailsByOwner_returnsOnlyHisListings() {
+    listingService.createListing(ownerId, "Дрель", "d", BigDecimal.TEN, "Инструменты");
+
+    assertEquals(1, listingService.getDetailsByOwner(ownerId).size());
+    assertTrue(listingService.getDetailsByOwner(ownerId + 100).isEmpty());
   }
 }
