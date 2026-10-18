@@ -4,17 +4,20 @@ import java.net.URL;
 import javafx.fxml.FXMLLoader;
 import rentalmarketplace.repository.ListingRepository;
 import rentalmarketplace.repository.RentalRequestRepository;
+import rentalmarketplace.repository.ReviewRepository;
 import rentalmarketplace.repository.SchemaRepository;
 import rentalmarketplace.repository.UserRepository;
 import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
 import rentalmarketplace.service.ReportService;
+import rentalmarketplace.service.ReviewService;
 import rentalmarketplace.service.UserService;
 
 public class AppContext {
   private final UserService userService;
   private final ListingService listingService;
   private final RentalRequestService rentalRequestService;
+  private final ReviewService reviewService;
   private final ReportService reportService;
 
   public AppContext() {
@@ -22,6 +25,9 @@ public class AppContext {
     listingService = new ListingService(new ListingRepository(), userService);
     rentalRequestService =
         new RentalRequestService(new RentalRequestRepository(), listingService, userService);
+    reviewService =
+        new ReviewService(
+            new ReviewRepository(), rentalRequestService, listingService, userService);
     reportService =
         new ReportService(
             userService, listingService, rentalRequestService, new SchemaRepository());
@@ -37,6 +43,10 @@ public class AppContext {
 
   public RentalRequestService rentalRequestService() {
     return rentalRequestService;
+  }
+
+  public ReviewService reviewService() {
+    return reviewService;
   }
 
   public ReportService reportService() {
