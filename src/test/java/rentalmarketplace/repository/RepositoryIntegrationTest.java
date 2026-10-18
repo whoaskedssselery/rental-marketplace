@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -35,11 +34,8 @@ class RepositoryIntegrationTest {
 
   @BeforeEach
   void setUp() {
-    try (Connection ignored = DatabaseManager.getConnection()) {
-      // соединение открылось - БД доступна
-    } catch (DatabaseAccessException | java.sql.SQLException e) {
-      Assumptions.assumeTrue(false, "БД недоступна, интеграционные тесты пропущены");
-    }
+    Assumptions.assumeTrue(
+        DatabaseManager.isAvailable(), "БД недоступна, интеграционные тесты пропущены");
     String suffix = UUID.randomUUID().toString().substring(0, 8);
     owner = users.save(new User("IT Owner", "owner-" + suffix + "@it.test", null, UserRole.OWNER));
     renter =

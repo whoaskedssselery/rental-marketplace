@@ -1,5 +1,3 @@
-// Исходник ER-диаграммы для dbdiagram.io (docs/er-diagram.png)
-
 Table users {
   id integer [primary key]
   full_name varchar
