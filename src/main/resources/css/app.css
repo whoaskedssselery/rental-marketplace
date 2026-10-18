@@ -232,7 +232,7 @@
 }
 
 .stat-value {
-    -fx-font-size: 26px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: -app-accent;
 }
