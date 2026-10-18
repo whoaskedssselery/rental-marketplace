@@ -3,10 +3,8 @@ package rentalmarketplace.fx.controller;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,7 +17,7 @@ import rentalmarketplace.fx.support.Exportable;
 import rentalmarketplace.fx.support.FormLoader;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.fx.support.Refreshable;
-import rentalmarketplace.fx.support.TableCells;
+import rentalmarketplace.fx.support.Tables;
 import rentalmarketplace.fx.support.UserMessages;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
@@ -57,23 +55,13 @@ public class UsersController implements Refreshable, Exportable {
 
   @FXML
   private void initialize() {
-    idColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().getId()));
-    nameColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().getFullName()));
-    emailColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().getEmail()));
-    phoneColumn.setCellValueFactory(
-        row ->
-            new ReadOnlyObjectWrapper<>(
-                row.getValue().getPhone() == null ? "" : row.getValue().getPhone()));
-    roleColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().getRole()));
-    createdColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().getCreatedAt()));
-    roleColumn.setCellFactory(column -> TableCells.text(Labels::role));
-    createdColumn.setCellFactory(column -> TableCells.text(Labels::dateTime));
-
-    SortedList<User> sorted = new SortedList<>(items);
-    sorted.comparatorProperty().bind(table.comparatorProperty());
-    table.setItems(sorted);
+    Tables.column(idColumn, User::getId);
+    Tables.column(nameColumn, User::getFullName);
+    Tables.column(emailColumn, User::getEmail);
+    Tables.column(phoneColumn, user -> user.getPhone() == null ? "" : user.getPhone());
+    Tables.column(roleColumn, User::getRole, Labels::role);
+    Tables.column(createdColumn, User::getCreatedAt, Labels::dateTime);
+    Tables.showSorted(table, items);
     table.getSelectionModel().selectedItemProperty().addListener((o, was, now) -> onSelected());
     listingsList.setItems(ownedListings);
     requestsList.setItems(rentedRequests);
@@ -92,12 +80,7 @@ public class UsersController implements Refreshable, Exportable {
       Dialogs.error(UserMessages.of(e));
       return;
     }
-    if (selected != null) {
-      items.stream()
-          .filter(row -> row.getId().equals(selected.getId()))
-          .findFirst()
-          .ifPresent(row -> table.getSelectionModel().select(row));
-    }
+    Tables.reselect(table, items, selected, User::getId);
     table.setPlaceholder(
         new Label("Пользователей пока нет. Нажмите «Добавить», чтобы создать первого"));
     countLabel.setText("Пользователей: " + items.size());

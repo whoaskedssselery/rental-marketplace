@@ -5,10 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -28,6 +26,7 @@ import rentalmarketplace.fx.support.FormValidator;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.fx.support.Refreshable;
 import rentalmarketplace.fx.support.TableCells;
+import rentalmarketplace.fx.support.Tables;
 import rentalmarketplace.fx.support.UserMessages;
 import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.service.RentalRequestService;
@@ -65,28 +64,17 @@ public class RequestsController implements Refreshable, Exportable {
 
   @FXML
   private void initialize() {
-    idColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().requestId()));
-    listingColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().listingTitle()));
-    renterColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().renterName()));
-    ownerColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().ownerName()));
-    startColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().startDate()));
-    endColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().endDate()));
-    statusColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().status()));
-    totalColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().totalPrice()));
-    createdColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().createdAt()));
-    startColumn.setCellFactory(column -> TableCells.text(Labels::date));
-    endColumn.setCellFactory(column -> TableCells.text(Labels::date));
+    Tables.column(idColumn, RequestDetails::requestId);
+    Tables.column(listingColumn, RequestDetails::listingTitle);
+    Tables.column(renterColumn, RequestDetails::renterName);
+    Tables.column(ownerColumn, RequestDetails::ownerName);
+    Tables.column(startColumn, RequestDetails::startDate, Labels::date);
+    Tables.column(endColumn, RequestDetails::endDate, Labels::date);
+    Tables.column(totalColumn, RequestDetails::totalPrice, Labels::money);
+    Tables.column(createdColumn, RequestDetails::createdAt, Labels::dateTime);
+    Tables.column(statusColumn, RequestDetails::status);
     statusColumn.setCellFactory(column -> TableCells.badge(Labels::status, Labels::statusStyle));
-    totalColumn.setCellFactory(column -> TableCells.text(Labels::money));
-    createdColumn.setCellFactory(column -> TableCells.text(Labels::dateTime));
-
-    SortedList<RequestDetails> sorted = new SortedList<>(items);
-    sorted.comparatorProperty().bind(table.comparatorProperty());
-    table.setItems(sorted);
+    Tables.showSorted(table, items);
     table.getSelectionModel().selectedItemProperty().addListener((o, was, now) -> updateButtons());
     table.setRowFactory(
         view -> {
@@ -121,12 +109,7 @@ public class RequestsController implements Refreshable, Exportable {
       Dialogs.error(UserMessages.of(e));
       return;
     }
-    if (selected != null) {
-      items.stream()
-          .filter(row -> row.requestId().equals(selected.requestId()))
-          .findFirst()
-          .ifPresent(row -> table.getSelectionModel().select(row));
-    }
+    Tables.reselect(table, items, selected, RequestDetails::requestId);
     boolean filtered = !RequestQuery.all().equals(query);
     table.setPlaceholder(
         new Label(

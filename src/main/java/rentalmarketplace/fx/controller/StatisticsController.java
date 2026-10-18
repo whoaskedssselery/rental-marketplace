@@ -3,7 +3,6 @@ package rentalmarketplace.fx.controller;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -20,6 +19,7 @@ import rentalmarketplace.fx.support.Dialogs;
 import rentalmarketplace.fx.support.Exportable;
 import rentalmarketplace.fx.support.Labels;
 import rentalmarketplace.fx.support.Refreshable;
+import rentalmarketplace.fx.support.Tables;
 import rentalmarketplace.fx.support.UserMessages;
 import rentalmarketplace.service.StatisticsReport;
 import rentalmarketplace.service.StatisticsService;
@@ -59,13 +59,10 @@ public class StatisticsController implements Refreshable, Exportable {
 
   @FXML
   private void initialize() {
-    statusNameColumn.setCellValueFactory(row -> new ReadOnlyObjectWrapper<>(row.getValue().name()));
-    statusCountColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().count()));
-    categoryNameColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().name()));
-    categoryCountColumn.setCellValueFactory(
-        row -> new ReadOnlyObjectWrapper<>(row.getValue().count()));
+    Tables.column(statusNameColumn, CountRow::name);
+    Tables.column(statusCountColumn, CountRow::count);
+    Tables.column(categoryNameColumn, CountRow::name);
+    Tables.column(categoryCountColumn, CountRow::count);
     refresh();
   }
 
