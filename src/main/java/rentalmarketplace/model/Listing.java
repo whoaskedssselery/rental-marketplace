@@ -3,10 +3,7 @@ package rentalmarketplace.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Listing implements Displayable {
-  private static final String ROW_FORMAT = "%-4s %-8s %-30s %-12s %-15s %-9s";
-  public static final String TABLE_HEADER =
-      String.format(ROW_FORMAT, "id", "Владелец", "Название", "Цена/день", "Категория", "Доступен");
+public class Listing {
 
   private Integer id;
   private Integer ownerId;
@@ -108,22 +105,5 @@ public class Listing implements Displayable {
 
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
-  }
-
-  @Override
-  public String toTableRow() {
-    return String.format(
-        ROW_FORMAT,
-        id == null ? "-" : id,
-        ownerId == null ? "-" : ownerId,
-        title,
-        pricePerDay,
-        category,
-        available ? "да" : "нет");
-  }
-
-  @Override
-  public String toString() {
-    return toTableRow();
   }
 }
