@@ -28,7 +28,6 @@ class RepositoryIntegrationTest {
   private final ListingRepository listings = new ListingRepository();
   private final RentalRequestRepository requests = new RentalRequestRepository();
   private final ReviewRepository reviews = new ReviewRepository();
-  private final SchemaRepository schema = new SchemaRepository();
 
   private User owner;
   private User renter;
@@ -128,14 +127,6 @@ class RepositoryIntegrationTest {
         assertThrows(DatabaseAccessException.class, () -> users.deleteById(owner.getId()));
 
     assertTrue(error.getMessage().startsWith("Нельзя удалить пользователя"));
-  }
-
-  @Test
-  void schemaRepository_returnsApplicationTables() {
-    assertTrue(
-        schema
-            .findAllTableNames()
-            .containsAll(List.of("users", "listings", "rental_requests", "reviews")));
   }
 
   @Test

@@ -5,12 +5,10 @@ import javafx.fxml.FXMLLoader;
 import rentalmarketplace.repository.ListingRepository;
 import rentalmarketplace.repository.RentalRequestRepository;
 import rentalmarketplace.repository.ReviewRepository;
-import rentalmarketplace.repository.SchemaRepository;
 import rentalmarketplace.repository.UserRepository;
 import rentalmarketplace.service.ExportService;
 import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
-import rentalmarketplace.service.ReportService;
 import rentalmarketplace.service.ReviewService;
 import rentalmarketplace.service.StatisticsService;
 import rentalmarketplace.service.UserService;
@@ -22,7 +20,6 @@ public class AppContext {
   private final ReviewService reviewService;
   private final StatisticsService statisticsService;
   private final ExportService exportService = new ExportService();
-  private final ReportService reportService;
 
   public AppContext() {
     userService = new UserService(new UserRepository());
@@ -34,9 +31,6 @@ public class AppContext {
             new ReviewRepository(), rentalRequestService, listingService, userService);
     statisticsService =
         new StatisticsService(userService, listingService, rentalRequestService, reviewService);
-    reportService =
-        new ReportService(
-            userService, listingService, rentalRequestService, new SchemaRepository());
   }
 
   public UserService userService() {
@@ -61,10 +55,6 @@ public class AppContext {
 
   public StatisticsService statisticsService() {
     return statisticsService;
-  }
-
-  public ReportService reportService() {
-    return reportService;
   }
 
   public FXMLLoader loader(String resourcePath) {
