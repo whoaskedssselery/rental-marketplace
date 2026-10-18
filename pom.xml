@@ -100,6 +100,8 @@
                         <exclude>rentalmarketplace/fx/controller/**</exclude>
                         <exclude>rentalmarketplace/fx/FxApplication*</exclude>
                         <exclude>rentalmarketplace/fx/support/Dialogs*</exclude>
+                        <exclude>rentalmarketplace/fx/support/FormLoader*</exclude>
+                        <exclude>rentalmarketplace/fx/support/TableCells*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
