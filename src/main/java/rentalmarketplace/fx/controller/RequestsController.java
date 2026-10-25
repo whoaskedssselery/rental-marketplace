@@ -71,9 +71,12 @@ public class RequestsController implements Refreshable, Exportable {
     Tables.column(startColumn, RequestDetails::startDate, Labels::date);
     Tables.column(endColumn, RequestDetails::endDate, Labels::date);
     Tables.column(totalColumn, RequestDetails::totalPrice, Labels::money);
-    Tables.column(createdColumn, RequestDetails::createdAt, Labels::dateTime);
+    Tables.column(
+        createdColumn,
+        RequestDetails::createdAt,
+        value -> value == null ? "" : Labels.date(value.toLocalDate()));
     Tables.column(statusColumn, RequestDetails::status);
-    statusColumn.setCellFactory(column -> TableCells.badge(Labels::status, Labels::statusStyle));
+    statusColumn.setCellFactory(column -> TableCells.status(Labels::status, Labels::statusStyle));
     Tables.showSorted(table, items);
     table.getSelectionModel().selectedItemProperty().addListener((o, was, now) -> updateButtons());
     table.setRowFactory(
@@ -104,6 +107,7 @@ public class RequestsController implements Refreshable, Exportable {
   public void refresh() {
     RequestDetails selected = table.getSelectionModel().getSelectedItem();
     try {
+      query = requestFilterController.refreshOwners(query);
       items.setAll(context.requestSearchService().query(query));
     } catch (RuntimeException e) {
       Dialogs.error(UserMessages.of(e));
