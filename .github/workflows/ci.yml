@@ -35,5 +35,9 @@ jobs:
           cache: maven
       - name: Apply database schema
         run: PGPASSWORD=ci_password psql -h localhost -U ci_user -d rental_marketplace -f db/init.sql
+      - name: Install virtual display for JavaFX regression tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth
       - name: Format, tests, coverage, lint
-        run: mvn --batch-mode verify
+        run: xvfb-run -a mvn --batch-mode -Djavafx.tests=true verify
