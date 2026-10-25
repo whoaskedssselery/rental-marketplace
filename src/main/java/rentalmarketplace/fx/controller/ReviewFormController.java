@@ -34,13 +34,20 @@ public class ReviewFormController {
     ratingBox.setItems(FXCollections.observableArrayList(1, 2, 3, 4, 5));
     requestBox.setItems(
         FXCollections.observableArrayList(context.reviewService().getReviewableRequests()));
-    hintLabel.setText("Отзыв можно оставить на завершенную заявку, по одному на заявку.");
+    boolean empty = requestBox.getItems().isEmpty();
+    hintLabel.setText("Нет завершённых заявок без отзыва.");
+    hintLabel.setVisible(empty);
+    hintLabel.setManaged(empty);
   }
 
   public void prepareForEdit(ReviewDetails details) {
     editedRequestId = details.requestId();
     requestBox.setVisible(false);
     requestBox.setManaged(false);
+    requestLabel.setVisible(true);
+    requestLabel.setManaged(true);
+    hintLabel.setVisible(false);
+    hintLabel.setManaged(false);
     requestLabel.setText(
         "Заявка №"
             + details.requestId()
@@ -50,7 +57,6 @@ public class ReviewFormController {
             + details.renterName());
     ratingBox.setValue(details.rating());
     commentArea.setText(details.comment());
-    hintLabel.setText("Можно изменить только оценку и комментарий.");
   }
 
   public ValidationResult validate() {

@@ -5,10 +5,11 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rentalmarketplace.fx.support.AppFonts;
+import rentalmarketplace.fx.support.Dialogs;
 import rentalmarketplace.util.DatabaseManager;
 
 public class FxApplication extends Application {
@@ -17,6 +18,7 @@ public class FxApplication extends Application {
 
   @Override
   public void start(Stage stage) {
+    AppFonts.load();
     if (!DatabaseManager.isAvailable()) {
       showStartupError(
           "Не удалось подключиться к базе данных",
@@ -42,11 +44,7 @@ public class FxApplication extends Application {
   }
 
   private void showStartupError(String header, String message) {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle(TITLE);
-    alert.setHeaderText(header);
-    alert.setContentText(message);
-    alert.showAndWait();
+    Dialogs.error(header, message);
   }
 
   public static void main(String[] args) {

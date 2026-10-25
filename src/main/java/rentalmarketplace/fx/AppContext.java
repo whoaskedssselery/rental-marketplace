@@ -2,6 +2,7 @@ package rentalmarketplace.fx;
 
 import java.net.URL;
 import javafx.fxml.FXMLLoader;
+import rentalmarketplace.fx.support.AppFonts;
 import rentalmarketplace.repository.ListingRepository;
 import rentalmarketplace.repository.RentalRequestRepository;
 import rentalmarketplace.repository.ReviewRepository;
@@ -66,6 +67,7 @@ public class AppContext {
   }
 
   public FXMLLoader loader(String resourcePath) {
+    AppFonts.load();
     URL location = AppContext.class.getResource(resourcePath);
     if (location == null) {
       throw new IllegalArgumentException("Не найден файл интерфейса " + resourcePath);

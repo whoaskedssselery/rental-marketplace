@@ -8,7 +8,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -19,24 +20,34 @@
     <padding>
         <Insets top="12" right="12" bottom="12" left="12"/>
     </padding>
-    <FlowPane hgap="12" vgap="8" styleClass="filter-bar" alignment="BOTTOM_LEFT">
-        <VBox spacing="4">
+    <VBox spacing="14" styleClass="filter-bar">
+      <GridPane hgap="12">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="44"/>
+            <ColumnConstraints percentWidth="24"/>
+            <ColumnConstraints percentWidth="32"/>
+        </columnConstraints>
+        <VBox spacing="6" GridPane.columnIndex="0">
             <Label text="Поиск" styleClass="form-label"/>
-            <TextField fx:id="searchField" prefWidth="240"
+            <TextField fx:id="searchField" minWidth="0" maxWidth="Infinity"
                        promptText="Объект, арендатор, комментарий" onAction="#onApply"/>
         </VBox>
-        <VBox spacing="4">
+        <VBox spacing="6" GridPane.columnIndex="1">
             <Label text="Оценка" styleClass="form-label"/>
-            <ComboBox fx:id="ratingFilterBox" prefWidth="170"/>
+            <ComboBox fx:id="ratingFilterBox" minWidth="0" maxWidth="Infinity"/>
         </VBox>
-        <VBox spacing="4">
+        <VBox spacing="6" GridPane.columnIndex="2">
             <Label text="Сортировка" styleClass="form-label"/>
-            <ComboBox fx:id="sortBox" prefWidth="160"/>
+            <ComboBox fx:id="sortBox" minWidth="0" maxWidth="Infinity"/>
         </VBox>
+      </GridPane>
+      <HBox spacing="10" alignment="CENTER_LEFT">
         <CheckBox fx:id="descendingBox" text="По убыванию"/>
+        <Region HBox.hgrow="ALWAYS"/>
         <Button text="Применить" onAction="#onApply" styleClass="primary-button"/>
-        <Button text="Сбросить" onAction="#onReset" styleClass="secondary-button"/>
-    </FlowPane>
+        <Button text="Сбросить" onAction="#onReset" styleClass="quiet-button"/>
+      </HBox>
+    </VBox>
     <HBox alignment="CENTER_LEFT" spacing="8">
         <Button text="Добавить" onAction="#onAdd" styleClass="primary-button"/>
         <Button fx:id="editButton" text="Изменить" onAction="#onEdit"

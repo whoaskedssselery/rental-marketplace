@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rentalmarketplace.fx.AppContext;
@@ -27,6 +28,7 @@ public class MainController {
   @FXML private TabPane tabPane;
   @FXML private Button exportButton;
   @FXML private Label statusLabel;
+  @FXML private HBox statusBar;
 
   @FXML private Object requestsController;
   @FXML private Object listingsController;
@@ -42,6 +44,8 @@ public class MainController {
 
   @FXML
   private void initialize() {
+    statusBar.visibleProperty().bind(statusLabel.textProperty().isNotEmpty());
+    statusBar.managedProperty().bind(statusBar.visibleProperty());
     tabControllers =
         Arrays.asList(
             requestsController,
@@ -59,9 +63,9 @@ public class MainController {
   @FXML
   private void onRefresh() {
     if (activeController() instanceof Refreshable refreshable) {
+      statusLabel.setText("");
       try {
         refreshable.refresh();
-        statusLabel.setText("Данные обновлены");
       } catch (RuntimeException e) {
         LOG.error("Не удалось обновить данные", e);
         statusLabel.setText("Не удалось обновить данные, подробности записаны в журнал");
@@ -111,7 +115,7 @@ public class MainController {
 
   private void onTabChanged() {
     exportButton.setDisable(!(activeController() instanceof Exportable));
-    statusLabel.setText("Готово");
+    statusLabel.setText("");
   }
 
   private Object activeController() {

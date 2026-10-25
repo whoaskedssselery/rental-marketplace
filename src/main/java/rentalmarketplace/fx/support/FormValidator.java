@@ -2,11 +2,16 @@ package rentalmarketplace.fx.support;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.regex.Pattern;
 
 public class FormValidator {
   private static final Pattern EMAIL = Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
   private static final BigDecimal MAX_AMOUNT = new BigDecimal("99999999.99");
+  private static final DateTimeFormatter DATE_INPUT =
+      DateTimeFormatter.ofPattern("dd.MM.uuuu").withResolverStyle(ResolverStyle.STRICT);
 
   private final ValidationResult result = new ValidationResult();
 
@@ -73,6 +78,19 @@ public class FormValidator {
       result.add(field, "выберите дату");
     }
     return value;
+  }
+
+  public static LocalDate parseDateText(String value) {
+    return value == null || value.isBlank() ? null : LocalDate.parse(value.trim(), DATE_INPUT);
+  }
+
+  public LocalDate requiredDateText(String field, String value) {
+    try {
+      return requiredDate(field, parseDateText(value));
+    } catch (DateTimeParseException error) {
+      result.add(field, "введите существующую дату в формате ДД.ММ.ГГГГ");
+      return null;
+    }
   }
 
   public void endAfterStart(String field, LocalDate start, LocalDate end) {
