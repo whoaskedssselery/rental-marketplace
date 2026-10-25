@@ -14,6 +14,7 @@ import rentalmarketplace.model.RentalRequestStatus;
 import rentalmarketplace.repository.RentalRequestRepository;
 
 public class RentalRequestService {
+  private static final BigDecimal MAX_TOTAL_PRICE = new BigDecimal("99999999.99");
   private final RentalRequestRepository rentalRequestRepository;
   private final ListingService listingService;
   private final UserService userService;
@@ -129,7 +130,12 @@ public class RentalRequestService {
     if (days <= 0) {
       throw new BusinessRuleException("Количество дней аренды должно быть положительным");
     }
-    return listing.getPricePerDay().multiply(BigDecimal.valueOf(days));
+    BigDecimal total = listing.getPricePerDay().multiply(BigDecimal.valueOf(days));
+    if (total.compareTo(MAX_TOTAL_PRICE) > 0) {
+      throw new BusinessRuleException(
+          "Сумма аренды не может превышать 99 999 999,99 руб. Сократите срок аренды.");
+    }
+    return total;
   }
 
   private void checkOverlap(
