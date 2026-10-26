@@ -112,7 +112,3 @@ docker exec -i rental-marketplace psql -U <POSTGRES_USER> -d <POSTGRES_DB> < db/
 ## Работа с git
 
 `main` защищён: изменения только через Pull Request с зелёным CI. Ветку после мержа удаляем.
-
-## ER-диаграмма
-
-`docs/er-diagram.png`
