@@ -15,8 +15,9 @@
     -app-danger-soft: #fbe9e7;
     -app-warning-soft: #fdf1d6;
 
-    -fx-font-family: "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-family: "Onest";
     -fx-font-size: 13px;
+    -fx-font-weight: normal;
     -fx-text-fill: -app-text;
     -fx-background-color: -app-bg;
     -fx-accent: -app-accent;
@@ -39,12 +40,12 @@
 
 .app-title {
     -fx-font-size: 18px;
-    -fx-font-weight: bold;
+    -fx-font-weight: normal;
 }
 
 .page-title {
     -fx-font-size: 15px;
-    -fx-font-weight: bold;
+    -fx-font-weight: normal;
 }
 
 .muted-text {
@@ -92,7 +93,7 @@
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected .tab-label {
     -fx-text-fill: -app-text;
-    -fx-font-weight: bold;
+    -fx-font-weight: normal;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
@@ -104,16 +105,18 @@
 }
 
 .button {
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
     -fx-padding: 7 16 7 16;
+    -fx-font-weight: 600;
+    -fx-min-height: 38;
     -fx-cursor: hand;
 }
 
 .primary-button {
     -fx-background-color: -app-accent;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-weight: 600;
 }
 
 .primary-button:hover {
@@ -122,7 +125,6 @@
 
 .primary-button:pressed {
     -fx-background-color: -app-accent-hover;
-    -fx-translate-y: 1;
 }
 
 .secondary-button {
@@ -157,28 +159,28 @@
 .table-view {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
     -fx-padding: 0;
     -fx-table-cell-border-color: transparent;
 }
 
 .table-view .column-header-background {
     -fx-background-color: -app-surface-2;
-    -fx-background-radius: 8 8 0 0;
+    -fx-background-radius: 4 4 0 0;
 }
 
 .table-view .column-header,
 .table-view .filler {
     -fx-background-color: transparent;
     -fx-border-color: transparent transparent -app-border transparent;
-    -fx-size: 36px;
+    -fx-size: 38px;
 }
 
 .table-view .column-header .label {
     -fx-padding: 0 10 0 10;
     -fx-font-size: 12px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 500;
     -fx-text-fill: -app-muted;
     -fx-alignment: CENTER-LEFT;
 }
@@ -188,7 +190,7 @@
 }
 
 .table-row-cell {
-    -fx-cell-size: 36px;
+    -fx-cell-size: 38px;
     -fx-background-color: -app-surface;
     -fx-border-color: transparent transparent -app-border-soft transparent;
 }
@@ -231,41 +233,41 @@
     -fx-font-size: 14px;
 }
 
-.status-badge {
-    -fx-padding: 2 10 2 10;
-    -fx-background-radius: 10;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
+.status-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+    -fx-text-fill: -app-text;
 }
 
-.status-new {
-    -fx-background-color: #e4eaf1;
-    -fx-text-fill: #33485f;
+.status-dot {
+    -fx-min-width: 6;
+    -fx-pref-width: 6;
+    -fx-max-width: 6;
+    -fx-min-height: 6;
+    -fx-pref-height: 6;
+    -fx-max-height: 6;
+    -fx-background-radius: 3;
+    -fx-background-color: #79847e;
 }
 
-.status-confirmed {
-    -fx-background-color: -app-accent-soft;
-    -fx-text-fill: #0b5a54;
+.status-confirmed .status-dot {
+    -fx-background-color: #557d9b;
 }
 
-.status-active {
-    -fx-background-color: -app-warning-soft;
-    -fx-text-fill: #7a4f00;
+.status-active .status-dot {
+    -fx-background-color: #a07730;
 }
 
-.status-completed {
-    -fx-background-color: #e0f1e5;
-    -fx-text-fill: #1d6137;
+.status-completed .status-dot {
+    -fx-background-color: #487c5b;
 }
 
-.status-cancelled {
-    -fx-background-color: -app-surface-2;
-    -fx-text-fill: -app-muted;
+.status-cancelled .status-dot {
+    -fx-background-color: #858d89;
 }
 
-.status-rejected {
-    -fx-background-color: -app-danger-soft;
-    -fx-text-fill: #912016;
+.status-rejected .status-dot {
+    -fx-background-color: #ac5f56;
 }
 
 .text-field,
@@ -279,7 +281,72 @@
     -fx-background-radius: 6;
     -fx-highlight-fill: -app-accent-soft;
     -fx-highlight-text-fill: -app-text;
-    -fx-prompt-text-fill: #8a9490;
+    -fx-prompt-text-fill: #69736f;
+}
+
+.text-field, .combo-box-base, .date-picker {
+    -fx-min-height: 38;
+}
+
+.text-field {
+    -fx-padding: 8 11;
+}
+
+.date-picker > .text-field,
+.combo-box:editable > .text-field {
+    -fx-min-height: 0;
+    -fx-pref-height: 36;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.text-field:invalid, .text-area:invalid,
+.combo-box-base:invalid, .date-picker:invalid {
+    -fx-border-color: -app-danger;
+    -fx-background-color: #fff9f8;
+}
+
+.field-error {
+    -fx-font-size: 12px;
+    -fx-text-fill: -app-danger;
+    -fx-padding: 0 1;
+}
+
+.form-error {
+    -fx-font-size: 13px;
+    -fx-text-fill: -app-danger;
+    -fx-background-color: -app-danger-soft;
+    -fx-background-radius: 6;
+    -fx-padding: 12 14;
+}
+
+.quiet-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -app-muted;
+    -fx-border-color: transparent;
+}
+
+.quiet-button:hover {
+    -fx-background-color: -app-surface-2;
+    -fx-text-fill: -app-text;
+}
+
+.form-summary {
+    -fx-background-color: #f3f6f5;
+    -fx-background-radius: 6;
+    -fx-padding: 14 16;
+}
+
+.total-value {
+    -fx-font-size: 18px;
+    -fx-font-weight: 500;
+}
+
+.form-summary .error-text {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
 }
 
 .text-field:focused,
@@ -347,9 +414,9 @@
 .filter-bar {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-    -fx-padding: 10 12 10 12;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 16;
 }
 
 .form-label {
@@ -360,8 +427,8 @@
 .panel {
     -fx-background-color: -app-surface;
     -fx-border-color: -app-border;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
     -fx-padding: 14 16 14 16;
 }
 
@@ -375,7 +442,8 @@
 }
 
 .stat-figure {
-    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
 }
 
 .list-view {
@@ -479,28 +547,30 @@
 
 .dialog-pane > .header-panel {
     -fx-background-color: -app-surface;
-    -fx-padding: 14 16 4 16;
+    -fx-padding: 22 24 8 24;
 }
 
 .dialog-pane > .header-panel .label {
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-font-weight: 500;
 }
 
 .dialog-pane > .content {
-    -fx-padding: 8 16 12 16;
+    -fx-padding: 12 24 18 24;
 }
 
 .dialog-pane .button {
     -fx-background-color: -app-surface;
     -fx-text-fill: -app-text;
     -fx-border-color: -app-border;
+    -fx-font-weight: 600;
+    -fx-min-width: 96;
 }
 
 .dialog-pane .button:default {
     -fx-background-color: -app-accent;
     -fx-text-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-weight: 600;
     -fx-border-color: transparent;
 }
 
@@ -509,6 +579,18 @@
 }
 
 .dialog-pane > .button-bar > .container {
-    -fx-background-color: -app-surface-2;
-    -fx-padding: 10 12 10 12;
+    -fx-background-color: -app-surface;
+    -fx-border-color: -app-border-soft transparent transparent transparent;
+    -fx-padding: 14 24 18 24;
+}
+
+.form-scroll, .form-scroll > .viewport {
+    -fx-background-color: -app-surface;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.dialog-pane .danger-button {
+    -fx-text-fill: -app-danger;
+    -fx-border-color: -app-danger;
 }

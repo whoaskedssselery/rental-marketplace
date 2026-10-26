@@ -2,6 +2,7 @@ package rentalmarketplace.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -59,6 +60,53 @@ class RentalRequestServiceTest {
 
     assertEquals(RentalRequestStatus.NEW, created.getStatus());
     assertEquals(0, new BigDecimal("4000.00").compareTo(created.getTotalPrice()));
+  }
+
+  @Test
+  void create_rejectsTotalBeyondDatabaseRangeWithoutSavingRequest() {
+    setPrice(new BigDecimal("60000000.00"));
+
+    BusinessRuleException error =
+        assertThrows(BusinessRuleException.class, () -> book(listing, renter, 1, 3));
+
+    assertTrue(error.getMessage().contains("99 999 999,99"));
+    assertTrue(service.getAll().isEmpty());
+  }
+
+  @Test
+  void create_acceptsLargestRepresentableTotal() {
+    setPrice(new BigDecimal("99999999.99"));
+
+    RentalRequest request = book(listing, renter, 1, 2);
+
+    assertEquals(new BigDecimal("99999999.99"), request.getTotalPrice());
+  }
+
+  @Test
+  void updateDates_rejectsOverflowWithoutChangingExistingDatesOrTotal() {
+    RentalRequest request = book(listing, renter, 1, 2);
+    setPrice(new BigDecimal("60000000.00"));
+
+    assertThrows(
+        BusinessRuleException.class,
+        () ->
+            service.updateDates(
+                request.getId(), LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 3)));
+
+    RentalRequest unchanged = service.getById(request.getId());
+    assertEquals(LocalDate.of(2026, 10, 2), unchanged.getEndDate());
+    assertEquals(new BigDecimal("1000.00"), unchanged.getTotalPrice());
+  }
+
+  private void setPrice(BigDecimal price) {
+    listingService.updateListing(
+        listing.getId(),
+        owner.getId(),
+        listing.getTitle(),
+        listing.getDescription(),
+        price,
+        listing.getCategory(),
+        true);
   }
 
   @Test

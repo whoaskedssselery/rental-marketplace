@@ -10,28 +10,34 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="rentalmarketplace.fx.controller.RequestFormController"
-      spacing="12" prefWidth="460">
+      spacing="18" prefWidth="480" styleClass="form-body">
     <padding>
-        <Insets top="4" right="4" bottom="4" left="4"/>
+        <Insets top="2" right="2" bottom="2" left="2"/>
     </padding>
-    <Label fx:id="hintLabel" wrapText="true" styleClass="muted-text"/>
-    <GridPane hgap="12" vgap="10">
+    <VBox spacing="6" userData="Объект">
+        <Label text="Объект" styleClass="form-label"/>
+        <ComboBox fx:id="listingBox" maxWidth="Infinity" promptText="Выберите объект"/>
+    </VBox>
+    <VBox spacing="6" userData="Арендатор">
+        <Label text="Арендатор" styleClass="form-label"/>
+        <ComboBox fx:id="renterBox" maxWidth="Infinity" promptText="Выберите арендатора"/>
+    </VBox>
+    <GridPane hgap="14">
         <columnConstraints>
-            <ColumnConstraints minWidth="110"/>
-            <ColumnConstraints hgrow="ALWAYS"/>
+            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints percentWidth="50"/>
         </columnConstraints>
-        <Label text="Объект" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="listingBox" maxWidth="Infinity" promptText="Выберите объект"
-                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-        <Label text="Арендатор" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="renterBox" maxWidth="Infinity" promptText="Выберите арендатора"
-                  GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-        <Label text="Дата начала" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="startPicker" maxWidth="Infinity"
-                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-        <Label text="Дата окончания" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <DatePicker fx:id="endPicker" maxWidth="Infinity"
-                    GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+        <VBox spacing="6" userData="Дата начала" GridPane.columnIndex="0">
+            <Label text="Дата начала" styleClass="form-label"/>
+            <DatePicker fx:id="startPicker" minWidth="0" maxWidth="Infinity"/>
+        </VBox>
+        <VBox spacing="6" userData="Дата окончания" GridPane.columnIndex="1">
+            <Label text="Дата окончания" styleClass="form-label"/>
+            <DatePicker fx:id="endPicker" minWidth="0" maxWidth="Infinity"/>
+        </VBox>
     </GridPane>
-    <Label fx:id="totalLabel" styleClass="page-title"/>
+    <VBox spacing="6" styleClass="form-summary">
+        <Label text="Стоимость аренды" styleClass="form-label"/>
+        <Label fx:id="totalLabel" styleClass="total-value" wrapText="true" minHeight="-Infinity"/>
+    </VBox>
 </VBox>
