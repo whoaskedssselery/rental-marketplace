@@ -10,22 +10,26 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="rentalmarketplace.fx.controller.ReviewFormController"
-      spacing="18" prefWidth="480" styleClass="form-body">
+      spacing="12" prefWidth="500">
     <padding>
         <Insets top="4" right="4" bottom="4" left="4"/>
     </padding>
-    <VBox spacing="6" userData="Заявка">
-        <Label text="Заявка" styleClass="form-label"/>
-        <ComboBox fx:id="requestBox" maxWidth="Infinity" promptText="Выберите завершённую заявку"/>
-        <Label fx:id="requestLabel" wrapText="true" visible="false" managed="false" minHeight="-Infinity"/>
-        <Label fx:id="hintLabel" wrapText="true" visible="false" managed="false" styleClass="muted-text"/>
-    </VBox>
-    <VBox spacing="6" userData="Оценка">
-        <Label text="Оценка" styleClass="form-label"/>
-        <ComboBox fx:id="ratingBox" maxWidth="Infinity" promptText="От 1 до 5"/>
-    </VBox>
-    <VBox spacing="6" userData="Комментарий">
-        <Label text="Комментарий · необязательно" styleClass="form-label"/>
-        <TextArea fx:id="commentArea" prefRowCount="4" wrapText="true"/>
-    </VBox>
+    <Label fx:id="hintLabel" wrapText="true" styleClass="muted-text"/>
+    <GridPane hgap="12" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="90"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+        <Label text="Заявка" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="requestBox" maxWidth="Infinity" promptText="Выберите завершенную заявку"
+                  GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label fx:id="requestLabel" wrapText="true"
+               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Оценка" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="ratingBox" maxWidth="Infinity" promptText="От 1 до 5"
+                  GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Комментарий" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextArea fx:id="commentArea" prefRowCount="4" wrapText="true"
+                  GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+    </GridPane>
 </VBox>

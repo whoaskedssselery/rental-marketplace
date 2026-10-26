@@ -2,17 +2,13 @@ package rentalmarketplace.fx.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.stage.Window;
 import javafx.util.StringConverter;
-import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.fx.AppContext;
 import rentalmarketplace.fx.support.FormValidator;
 import rentalmarketplace.fx.support.Labels;
@@ -32,6 +28,7 @@ public class RequestFormController {
   @FXML private DatePicker startPicker;
   @FXML private DatePicker endPicker;
   @FXML private Label totalLabel;
+  @FXML private Label hintLabel;
 
   public RequestFormController(AppContext context) {
     this.context = context;
@@ -39,8 +36,6 @@ public class RequestFormController {
 
   @FXML
   private void initialize() {
-    configureDate(startPicker);
-    configureDate(endPicker);
     listingBox.setConverter(
         new StringConverter<>() {
           @Override
@@ -71,35 +66,14 @@ public class RequestFormController {
     listingBox.valueProperty().addListener((o, was, now) -> updateTotal());
     startPicker.valueProperty().addListener((o, was, now) -> updateTotal());
     endPicker.valueProperty().addListener((o, was, now) -> updateTotal());
-    startPicker.getEditor().textProperty().addListener((o, was, now) -> updateTotal());
-    endPicker.getEditor().textProperty().addListener((o, was, now) -> updateTotal());
     updateTotal();
-  }
-
-  private void configureDate(DatePicker picker) {
-    picker.setPromptText("дд.мм.гггг");
-    picker.setConverter(
-        new StringConverter<>() {
-          @Override
-          public String toString(LocalDate date) {
-            return Labels.date(date);
-          }
-
-          @Override
-          public LocalDate fromString(String text) {
-            try {
-              return FormValidator.parseDateText(text);
-            } catch (DateTimeParseException error) {
-              return null;
-            }
-          }
-        });
   }
 
   public void prepareForCreate() {
     List<Listing> available =
         context.listingService().getAllListings().stream().filter(Listing::isAvailable).toList();
     listingBox.setItems(FXCollections.observableArrayList(available));
+    hintLabel.setText("Объект и арендатора выбирайте из списков. Сумма считается автоматически.");
   }
 
   public void prepareForEdit(RequestDetails details) {
@@ -117,9 +91,13 @@ public class RequestFormController {
     endPicker.setValue(details.endDate());
     listingBox.setDisable(true);
     renterBox.setDisable(true);
-    if (!context.rentalRequestService().canChangeDates(details.status())) {
+    if (context.rentalRequestService().canChangeDates(details.status())) {
+      hintLabel.setText("Можно изменить только даты: объект и арендатор у заявки не меняются.");
+    } else {
       startPicker.setDisable(true);
       endPicker.setDisable(true);
+      hintLabel.setText(
+          "Даты можно менять только у новой заявки. Статус меняется отдельной кнопкой.");
     }
   }
 
@@ -127,8 +105,8 @@ public class RequestFormController {
     FormValidator validator = new FormValidator();
     validator.selected("Объект", listingBox.getValue());
     validator.selected("Арендатор", renterBox.getValue());
-    LocalDate start = validator.requiredDateText("Дата начала", startPicker.getEditor().getText());
-    LocalDate end = validator.requiredDateText("Дата окончания", endPicker.getEditor().getText());
+    LocalDate start = validator.requiredDate("Дата начала", startPicker.getValue());
+    LocalDate end = validator.requiredDate("Дата окончания", endPicker.getValue());
     validator.endAfterStart("Дата окончания", start, end);
     return validator.result();
   }
@@ -137,36 +115,21 @@ public class RequestFormController {
     return new Values(
         listingBox.getValue().getId(),
         renterBox.getValue().getId(),
-        FormValidator.parseDateText(startPicker.getEditor().getText()),
-        FormValidator.parseDateText(endPicker.getEditor().getText()));
+        startPicker.getValue(),
+        endPicker.getValue());
   }
 
   private void updateTotal() {
     Listing listing = listingBox.getValue();
-    boolean wasError = totalLabel.getStyleClass().contains("error-text");
-    totalLabel.getStyleClass().remove("error-text");
-    try {
-      BigDecimal total =
-          context
-              .rentalRequestService()
-              .estimateTotal(
-                  listing == null ? null : listing.getId(),
-                  FormValidator.parseDateText(startPicker.getEditor().getText()),
-                  FormValidator.parseDateText(endPicker.getEditor().getText()))
-              .orElse(null);
-      totalLabel.setText(total == null ? "—" : Labels.money(total));
-    } catch (DateTimeParseException error) {
-      totalLabel.setText("Проверьте даты аренды");
-    } catch (BusinessRuleException error) {
-      totalLabel.setText(error.getMessage());
-      totalLabel.getStyleClass().add("error-text");
-    }
-    if (wasError != totalLabel.getStyleClass().contains("error-text")
-        && totalLabel.getScene() != null) {
-      Window window = totalLabel.getScene().getWindow();
-      if (window != null) {
-        Platform.runLater(window::sizeToScene);
-      }
-    }
+    BigDecimal total =
+        context
+            .rentalRequestService()
+            .estimateTotal(
+                listing == null ? null : listing.getId(),
+                startPicker.getValue(),
+                endPicker.getValue())
+            .orElse(null);
+    totalLabel.setText(
+        total == null ? "Итого: выберите объект и даты" : "Итого: " + Labels.money(total));
   }
 }

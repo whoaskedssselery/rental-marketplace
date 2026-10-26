@@ -10,30 +10,25 @@
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="rentalmarketplace.fx.controller.UserFormController"
-      spacing="18" prefWidth="480" styleClass="form-body">
+      spacing="12" prefWidth="440">
     <padding>
         <Insets top="4" right="4" bottom="4" left="4"/>
     </padding>
-    <VBox spacing="6" userData="ФИО">
-        <Label text="Имя и фамилия" styleClass="form-label"/>
-        <TextField fx:id="nameField" promptText="Анна Смирнова"/>
-    </VBox>
-    <VBox spacing="6" userData="Email">
-        <Label text="Email" styleClass="form-label"/>
-        <TextField fx:id="emailField" promptText="name@example.com"/>
-    </VBox>
-    <GridPane hgap="14">
+    <GridPane hgap="12" vgap="10">
         <columnConstraints>
-            <ColumnConstraints percentWidth="50"/>
-            <ColumnConstraints percentWidth="50"/>
+            <ColumnConstraints minWidth="90"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
         </columnConstraints>
-        <VBox spacing="6" userData="Телефон" GridPane.columnIndex="0">
-            <Label text="Телефон · необязательно" styleClass="form-label"/>
-            <TextField fx:id="phoneField"/>
-        </VBox>
-        <VBox spacing="6" userData="Роль" GridPane.columnIndex="1">
-            <Label text="Роль" styleClass="form-label"/>
-            <ComboBox fx:id="roleBox" maxWidth="Infinity" promptText="Выберите роль"/>
-        </VBox>
+        <Label text="ФИО" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="Email" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="emailField" promptText="name@example.com"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Телефон" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="phoneField" promptText="Необязательно"
+                   GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Роль" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="roleBox" maxWidth="Infinity" promptText="Выберите роль"
+                  GridPane.rowIndex="3" GridPane.columnIndex="1"/>
     </GridPane>
 </VBox>

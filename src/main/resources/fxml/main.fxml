@@ -47,7 +47,7 @@
         </TabPane>
     </center>
     <bottom>
-        <HBox fx:id="statusBar" alignment="CENTER_LEFT" styleClass="status-bar">
+        <HBox alignment="CENTER_LEFT" styleClass="status-bar">
             <padding>
                 <Insets top="4" right="12" bottom="4" left="12"/>
             </padding>
