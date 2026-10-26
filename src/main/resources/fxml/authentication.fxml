@@ -13,7 +13,6 @@
         <StackPane>
             <padding><Insets top="32" right="24" bottom="32" left="24"/></padding>
             <VBox maxWidth="420" maxHeight="-Infinity" spacing="20" styleClass="auth-panel">
-                <Label text="Маркетплейс аренды" styleClass="app-title"/>
                 <VBox spacing="8">
                     <Label fx:id="titleLabel" styleClass="auth-title"/>
                     <Label fx:id="subtitleLabel" wrapText="true" styleClass="muted-text"/>
