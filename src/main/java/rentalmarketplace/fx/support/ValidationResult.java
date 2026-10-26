@@ -12,7 +12,7 @@ public final class ValidationResult {
 
   private final List<FieldError> errors = new ArrayList<>();
 
-  void add(String field, String message) {
+  public void add(String field, String message) {
     errors.add(new FieldError(field, message));
   }
 

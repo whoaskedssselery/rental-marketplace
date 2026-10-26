@@ -4,6 +4,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     full_name VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
+    password_hash TEXT,
     phone VARCHAR(30),
     role VARCHAR(20) NOT NULL CHECK (role IN ('RENTER', 'OWNER', 'ADMIN')),
     created_at TIMESTAMP NOT NULL DEFAULT now()
@@ -72,6 +73,7 @@ INSERT INTO rental_requests (listing_id, renter_id, start_date, end_date, status
     (2, 6, '2026-09-18', '2026-09-19', 'NEW', 500.00),
     (5, 2, '2026-09-22', '2026-09-23', 'NEW', 800.00),
     (4, 4, '2026-08-01', '2026-08-10', 'COMPLETED', 3150.00);
+CREATE UNIQUE INDEX users_email_lower_key ON users (lower(email));
 CREATE INDEX idx_listings_owner_id ON listings (owner_id);
 CREATE INDEX idx_rental_requests_renter_id ON rental_requests (renter_id);
 CREATE INDEX idx_rental_requests_listing_status ON rental_requests (listing_id, status);

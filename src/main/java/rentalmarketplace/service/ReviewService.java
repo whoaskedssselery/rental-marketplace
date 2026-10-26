@@ -41,6 +41,7 @@ public class ReviewService {
 
   public Review create(Integer requestId, int rating, String comment) {
     RentalRequest request = rentalRequestService.getById(requestId);
+    userService.access().requireOwner(request.getRenterId());
     if (request.getStatus() != RentalRequestStatus.COMPLETED) {
       throw new BusinessRuleException("Отзыв можно оставить только на завершенную заявку");
     }
@@ -52,17 +53,20 @@ public class ReviewService {
   }
 
   public Review getById(Integer id) {
+    userService.access().currentUser();
     return reviewRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Отзыв с id=" + id + " не найден"));
   }
 
   public List<Review> getAll() {
+    userService.access().currentUser();
     return reviewRepository.findAll();
   }
 
   public Review update(Integer id, int rating, String comment) {
     Review review = getById(id);
+    requireAuthor(review);
     validateRating(rating);
     review.setRating(rating);
     review.setComment(normalizeComment(comment));
@@ -70,13 +74,13 @@ public class ReviewService {
   }
 
   public void delete(Integer id) {
-    getById(id);
+    requireAuthor(getById(id));
     reviewRepository.deleteById(id);
   }
 
   public List<ReviewDetails> getDetails() {
     Map<Integer, RentalRequest> requestsById =
-        rentalRequestService.getAll().stream()
+        publicReviewRequests().stream()
             .collect(Collectors.toMap(RentalRequest::getId, Function.identity()));
     Map<Integer, Listing> listingsById = listingsById();
     Map<Integer, User> usersById = usersById();
@@ -110,6 +114,7 @@ public class ReviewService {
     Map<Integer, Listing> listingsById = listingsById();
     Map<Integer, User> usersById = usersById();
     return rentalRequestService.getAll().stream()
+        .filter(request -> userService.access().mayEdit(request.getRenterId()))
         .filter(request -> request.getStatus() == RentalRequestStatus.COMPLETED)
         .filter(request -> !reviewedRequestIds.contains(request.getId()))
         .map(
@@ -125,7 +130,7 @@ public class ReviewService {
 
   public Optional<BigDecimal> averageRatingForListing(Integer listingId) {
     Set<Integer> requestIds =
-        rentalRequestService.getAll().stream()
+        publicReviewRequests().stream()
             .filter(request -> request.getListingId().equals(listingId))
             .map(RentalRequest::getId)
             .collect(Collectors.toSet());
@@ -144,6 +149,17 @@ public class ReviewService {
     return contains(details.listingTitle(), text)
         || contains(details.renterName(), text)
         || contains(details.comment(), text);
+  }
+
+  private List<RentalRequest> publicReviewRequests() {
+    Set<Integer> ids = getAll().stream().map(Review::getRequestId).collect(Collectors.toSet());
+    return rentalRequestService.reviewedRequests(ids);
+  }
+
+  private void requireAuthor(Review review) {
+    userService
+        .access()
+        .requireOwner(rentalRequestService.getById(review.getRequestId()).getRenterId());
   }
 
   private boolean contains(String value, String lowerCaseText) {

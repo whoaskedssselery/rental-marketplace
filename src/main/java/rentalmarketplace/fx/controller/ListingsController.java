@@ -140,7 +140,7 @@ public class ListingsController implements Refreshable, Exportable {
   @FXML
   private void onEdit() {
     ListingDetails selected = table.getSelectionModel().getSelectedItem();
-    if (selected == null) {
+    if (selected == null || !context.access().mayEdit(selected.ownerId())) {
       return;
     }
     FormLoader.Loaded<ListingFormController> form =
@@ -173,7 +173,7 @@ public class ListingsController implements Refreshable, Exportable {
   @FXML
   private void onDelete() {
     ListingDetails row = table.getSelectionModel().getSelectedItem();
-    if (row == null) {
+    if (row == null || !context.access().mayEdit(row.ownerId())) {
       return;
     }
     boolean confirmed =
@@ -195,8 +195,9 @@ public class ListingsController implements Refreshable, Exportable {
 
   private void onSelected() {
     ListingDetails selected = table.getSelectionModel().getSelectedItem();
-    editButton.setDisable(selected == null);
-    deleteButton.setDisable(selected == null);
+    boolean editable = selected != null && context.access().mayEdit(selected.ownerId());
+    editButton.setDisable(!editable);
+    deleteButton.setDisable(!editable);
     relatedRequests.clear();
     if (selected == null) {
       relatedTitle.setText("Заявки на выбранный объект");

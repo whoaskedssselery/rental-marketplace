@@ -35,6 +35,7 @@ public class ListingService {
       BigDecimal pricePerDay,
       String category,
       boolean available) {
+    userService.access().requireOwner(ownerId);
     validateTitle(title);
     validateCategory(category);
     validatePrice(pricePerDay);
@@ -45,12 +46,14 @@ public class ListingService {
   }
 
   public Listing getListingById(Integer id) {
+    userService.access().currentUser();
     return listingRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Объект аренды с id=" + id + " не найден"));
   }
 
   public List<Listing> getAllListings() {
+    userService.access().currentUser();
     return listingRepository.findAll();
   }
 
@@ -63,6 +66,8 @@ public class ListingService {
       String category,
       boolean available) {
     Listing existing = getListingById(id);
+    userService.access().requireOwner(existing.getOwnerId());
+    userService.access().requireOwner(ownerId);
     validateTitle(title);
     validateCategory(category);
     validatePrice(pricePerDay);
@@ -109,7 +114,7 @@ public class ListingService {
   }
 
   public void deleteListing(Integer id) {
-    getListingById(id);
+    userService.access().requireOwner(getListingById(id).getOwnerId());
     listingRepository.deleteById(id);
   }
 

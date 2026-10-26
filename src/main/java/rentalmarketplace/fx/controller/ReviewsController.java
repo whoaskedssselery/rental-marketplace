@@ -169,7 +169,7 @@ public class ReviewsController implements Refreshable, Exportable {
   @FXML
   private void onEdit() {
     ReviewDetails selected = table.getSelectionModel().getSelectedItem();
-    if (selected == null) {
+    if (selected == null || !context.access().mayEdit(selected.renterId())) {
       return;
     }
     FormLoader.Loaded<ReviewFormController> form =
@@ -195,7 +195,7 @@ public class ReviewsController implements Refreshable, Exportable {
   @FXML
   private void onDelete() {
     ReviewDetails row = table.getSelectionModel().getSelectedItem();
-    if (row == null) {
+    if (row == null || !context.access().mayEdit(row.renterId())) {
       return;
     }
     boolean confirmed =
@@ -220,8 +220,9 @@ public class ReviewsController implements Refreshable, Exportable {
 
   private void onSelected() {
     ReviewDetails selected = table.getSelectionModel().getSelectedItem();
-    editButton.setDisable(selected == null);
-    deleteButton.setDisable(selected == null);
+    boolean editable = selected != null && context.access().mayEdit(selected.renterId());
+    editButton.setDisable(!editable);
+    deleteButton.setDisable(!editable);
     if (selected == null) {
       summaryLabel.setText("Выберите отзыв, чтобы увидеть средний рейтинг объекта");
       return;

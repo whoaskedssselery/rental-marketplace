@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ public class MainController {
   @FXML private TabPane tabPane;
   @FXML private Button exportButton;
   @FXML private Label statusLabel;
+  @FXML private Label currentUserLabel;
   @FXML private HBox statusBar;
 
   @FXML private Object requestsController;
@@ -37,13 +39,21 @@ public class MainController {
   @FXML private Object statisticsController;
 
   private List<Object> tabControllers;
+  private Runnable onLogout = () -> {};
 
   public MainController(AppContext context) {
     this.context = context;
+    context.access().currentUser();
   }
 
   @FXML
   private void initialize() {
+    currentUserLabel.setText(context.access().currentUser().getFullName());
+    currentUserLabel.setTooltip(new Tooltip(currentUserLabel.getText()));
+    if (!context.access().isAdmin()) {
+      tabPane.getTabs().get(0).setText("Мои заявки");
+      tabPane.getTabs().get(2).setText("Профиль");
+    }
     statusBar.visibleProperty().bind(statusLabel.textProperty().isNotEmpty());
     statusBar.managedProperty().bind(statusBar.visibleProperty());
     tabControllers =
@@ -58,6 +68,15 @@ public class MainController {
         .selectedIndexProperty()
         .addListener((o, was, now) -> onTabChanged());
     onTabChanged();
+  }
+
+  public void setOnLogout(Runnable callback) {
+    onLogout = callback;
+  }
+
+  @FXML
+  private void onLogout() {
+    onLogout.run();
   }
 
   @FXML

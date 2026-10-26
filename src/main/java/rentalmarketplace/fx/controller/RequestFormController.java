@@ -67,7 +67,11 @@ public class RequestFormController {
             return null;
           }
         });
-    renterBox.setItems(FXCollections.observableArrayList(context.userService().getAllUsers()));
+    renterBox.setItems(FXCollections.observableArrayList(context.userService().getVisibleUsers()));
+    if (!context.access().isAdmin()) {
+      renterBox.setValue(context.access().currentUser());
+      renterBox.setDisable(true);
+    }
     listingBox.valueProperty().addListener((o, was, now) -> updateTotal());
     startPicker.valueProperty().addListener((o, was, now) -> updateTotal());
     endPicker.valueProperty().addListener((o, was, now) -> updateTotal());
@@ -98,7 +102,13 @@ public class RequestFormController {
 
   public void prepareForCreate() {
     List<Listing> available =
-        context.listingService().getAllListings().stream().filter(Listing::isAvailable).toList();
+        context.listingService().getAllListings().stream()
+            .filter(Listing::isAvailable)
+            .filter(
+                listing ->
+                    context.access().isAdmin()
+                        || !listing.getOwnerId().equals(context.access().currentUser().getId()))
+            .toList();
     listingBox.setItems(FXCollections.observableArrayList(available));
   }
 
@@ -117,7 +127,7 @@ public class RequestFormController {
     endPicker.setValue(details.endDate());
     listingBox.setDisable(true);
     renterBox.setDisable(true);
-    if (!context.rentalRequestService().canChangeDates(details.status())) {
+    if (!context.rentalRequestService().canEdit(details.requestId())) {
       startPicker.setDisable(true);
       endPicker.setDisable(true);
     }

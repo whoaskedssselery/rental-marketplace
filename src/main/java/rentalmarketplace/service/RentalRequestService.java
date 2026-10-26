@@ -30,6 +30,7 @@ public class RentalRequestService {
 
   public RentalRequest create(
       Integer listingId, Integer renterId, LocalDate startDate, LocalDate endDate) {
+    userService.access().requireOwner(renterId);
     Listing listing = listingService.getListingById(listingId);
     userService.getUserById(renterId);
 
@@ -53,18 +54,66 @@ public class RentalRequestService {
   }
 
   public RentalRequest getById(Integer id) {
+    RentalRequest request = findRequest(id);
+    if (!mayRead(request)) {
+      throw new BusinessRuleException("Заявка доступна только участникам аренды");
+    }
+    return request;
+  }
+
+  private RentalRequest findRequest(Integer id) {
+    userService.access().currentUser();
     return rentalRequestRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Заявка с id=" + id + " не найдена"));
   }
 
   public List<RentalRequest> getAll() {
-    return rentalRequestRepository.findAll();
+    userService.access().currentUser();
+    return rentalRequestRepository.findAll().stream().filter(this::mayRead).toList();
+  }
+
+  /** Internal projection source for public reviews, never exposed as a booking endpoint. */
+  List<RentalRequest> reviewedRequests(java.util.Set<Integer> reviewRequestIds) {
+    userService.access().currentUser();
+    return rentalRequestRepository.findAll().stream()
+        .filter(request -> reviewRequestIds.contains(request.getId()))
+        .toList();
+  }
+
+  private boolean mayRead(RentalRequest request) {
+    return userService.access().mayEdit(request.getRenterId())
+        || userService
+            .access()
+            .mayEdit(listingService.getListingById(request.getListingId()).getOwnerId());
+  }
+
+  public boolean canEdit(Integer id) {
+    RentalRequest request = getById(id);
+    return userService.access().mayEdit(request.getRenterId())
+        && canChangeDates(request.getStatus());
+  }
+
+  public boolean canDelete(Integer id) {
+    return userService.access().mayEdit(getById(id).getRenterId());
+  }
+
+  public List<RentalRequestStatus> allowedTransitions(Integer id) {
+    RentalRequest request = getById(id);
+    boolean owner =
+        userService
+            .access()
+            .mayEdit(listingService.getListingById(request.getListingId()).getOwnerId());
+    return allowedTransitions(request.getStatus()).stream()
+        .filter(status -> owner || status == RentalRequestStatus.CANCELLED)
+        .toList();
   }
 
   public RentalRequest updateDates(
       Integer requestId, LocalDate newStartDate, LocalDate newEndDate) {
     RentalRequest request = getById(requestId);
+
+    userService.access().requireOwner(request.getRenterId());
 
     if (!canChangeDates(request.getStatus())) {
       throw new BusinessRuleException(
@@ -84,6 +133,11 @@ public class RentalRequestService {
 
   public RentalRequest changeStatus(Integer requestId, RentalRequestStatus newStatus) {
     RentalRequest request = getById(requestId);
+    if (newStatus != RentalRequestStatus.CANCELLED) {
+      userService
+          .access()
+          .requireOwner(listingService.getListingById(request.getListingId()).getOwnerId());
+    }
     RentalRequestStatus current = request.getStatus();
     if (!isTransitionAllowed(current, newStatus)) {
       throw new BusinessRuleException("Переход " + current + " -> " + newStatus + " запрещён");
@@ -93,7 +147,7 @@ public class RentalRequestService {
   }
 
   public void delete(Integer id) {
-    getById(id);
+    userService.access().requireOwner(getById(id).getRenterId());
     rentalRequestRepository.deleteById(id);
   }
 

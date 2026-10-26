@@ -31,7 +31,8 @@ class RentalRequestServiceTest {
 
   @BeforeEach
   void setUp() {
-    userService = new UserService(new FakeUserRepository());
+    userService =
+        new UserService(new FakeUserRepository(), rentalmarketplace.security.TestAccess.admin());
     listingService = new ListingService(new FakeListingRepository(), userService);
     service =
         new RentalRequestService(new FakeRentalRequestRepository(), listingService, userService);

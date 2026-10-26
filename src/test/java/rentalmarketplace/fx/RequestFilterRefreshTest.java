@@ -336,7 +336,8 @@ class RequestFilterRefreshTest {
   }
 
   private static final class Fixture {
-    private final UserService users = new UserService(new FakeUserRepository());
+    private final UserService users =
+        new UserService(new FakeUserRepository(), rentalmarketplace.security.TestAccess.admin());
     private final ListingService listings = new ListingService(new FakeListingRepository(), users);
     private final RentalRequestService requests =
         new RentalRequestService(new FakeRentalRequestRepository(), listings, users);

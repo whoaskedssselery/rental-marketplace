@@ -37,6 +37,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
@@ -70,6 +71,27 @@ class RequirementsWorkflowTest {
     org.junit.jupiter.api.Assumptions.assumeTrue(DatabaseManager.isAvailable());
   }
 
+  private final List<Integer> operators = new ArrayList<>();
+
+  private AppContext signedInAdmin(AppContext context) {
+    context.authenticationService().initialize();
+    String email = "operator-" + UUID.randomUUID() + "@test.com";
+    String password = "integration operator passphrase";
+    User operator =
+        new UserRepository()
+            .saveWithPassword(
+                new User("Integration operator", email, null, UserRole.ADMIN),
+                new rentalmarketplace.security.PasswordHasher().hash(password));
+    operators.add(operator.getId());
+    context.authenticationService().login(email, password);
+    return context;
+  }
+
+  @AfterEach
+  void deleteOperators() {
+    operators.forEach(id -> new UserRepository().deleteById(id));
+  }
+
   @Test
   void failedRefreshDoesNotReportSuccess() throws Exception {
     onFx(
@@ -92,6 +114,7 @@ class RequirementsWorkflowTest {
                   };
                 }
               };
+          signedInAdmin(context);
           Ui ui = new Ui(context);
           try {
             fail.set(true);
@@ -110,7 +133,7 @@ class RequirementsWorkflowTest {
     onFx(
         () -> {
           String marker = "Workflow-" + UUID.randomUUID().toString().substring(0, 8);
-          AppContext context = new AppContext();
+          AppContext context = signedInAdmin(new AppContext());
           Ui ui = new Ui(context);
           try {
             Parent users = ui.tab("Пользователи");
@@ -292,7 +315,7 @@ class RequirementsWorkflowTest {
   void realMainWindowFiltersSortsCalculatesStatisticsAndExportsVisibleRows() throws Exception {
     onFx(
         () -> {
-          AppContext context = new AppContext();
+          AppContext context = signedInAdmin(new AppContext());
           String marker = "Search-" + UUID.randomUUID().toString().substring(0, 8);
           User owner =
               context

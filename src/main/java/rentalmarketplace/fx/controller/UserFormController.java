@@ -47,6 +47,10 @@ public class UserFormController {
     roleBox.setValue(user.getRole());
   }
 
+  public void lockRole() {
+    roleBox.setDisable(true);
+  }
+
   public ValidationResult validate() {
     FormValidator validator = new FormValidator();
     validator.requiredText("ФИО", nameField.getText(), NAME_MAX);

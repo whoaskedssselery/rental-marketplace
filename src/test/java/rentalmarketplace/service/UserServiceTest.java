@@ -21,7 +21,7 @@ class UserServiceTest {
   @BeforeEach
   void setUp() {
     userRepository = new FakeUserRepository();
-    userService = new UserService(userRepository);
+    userService = new UserService(userRepository, rentalmarketplace.security.TestAccess.admin());
   }
 
   @Test

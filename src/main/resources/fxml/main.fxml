@@ -14,9 +14,7 @@
             styleClass="main-pane">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="8" styleClass="toolbar">
-            <padding>
-                <Insets top="8" right="12" bottom="8" left="12"/>
-            </padding>
+            <padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
             <Label text="Маркетплейс аренды" styleClass="app-title"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="refreshButton" text="Обновить" onAction="#onRefresh"
@@ -25,6 +23,10 @@
                     styleClass="secondary-button"/>
             <Button fx:id="exportButton" text="Экспорт" onAction="#onExport"
                     styleClass="secondary-button"/>
+            <Label fx:id="currentUserLabel" minWidth="0" maxWidth="140"
+                   textOverrun="ELLIPSIS" styleClass="muted-text"/>
+            <Button fx:id="logoutButton" text="Выйти" onAction="#onLogout"
+                    styleClass="quiet-button"/>
         </HBox>
     </top>
     <center>

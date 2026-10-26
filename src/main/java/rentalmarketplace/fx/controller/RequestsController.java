@@ -188,7 +188,7 @@ public class RequestsController implements Refreshable, Exportable {
   @FXML
   private void onEdit() {
     RequestDetails selected = table.getSelectionModel().getSelectedItem();
-    if (selected == null) {
+    if (selected == null || !service.canEdit(selected.requestId())) {
       return;
     }
     FormLoader.Loaded<RequestFormController> form =
@@ -203,7 +203,7 @@ public class RequestsController implements Refreshable, Exportable {
             form.node(),
             form.controller()::validate,
             () -> {
-              if (service.canChangeDates(selected.status())) {
+              if (service.canEdit(selected.requestId())) {
                 RequestFormController.Values values = form.controller().values();
                 service.updateDates(selected.requestId(), values.startDate(), values.endDate());
               }
@@ -219,7 +219,7 @@ public class RequestsController implements Refreshable, Exportable {
     if (selected == null) {
       return;
     }
-    List<RentalRequestStatus> allowed = service.allowedTransitions(selected.status());
+    List<RentalRequestStatus> allowed = service.allowedTransitions(selected.requestId());
     if (allowed.isEmpty()) {
       Dialogs.message(
           "Статус изменить нельзя",
@@ -291,7 +291,7 @@ public class RequestsController implements Refreshable, Exportable {
   @FXML
   private void onDelete() {
     RequestDetails row = table.getSelectionModel().getSelectedItem();
-    if (row == null) {
+    if (row == null || !service.canDelete(row.requestId())) {
       return;
     }
     boolean confirmed =
@@ -318,9 +318,9 @@ public class RequestsController implements Refreshable, Exportable {
   private void updateButtons() {
     RequestDetails selected = table.getSelectionModel().getSelectedItem();
     boolean none = selected == null;
-    editButton.setDisable(none || !service.canChangeDates(selected.status()));
-    statusButton.setDisable(none || service.allowedTransitions(selected.status()).isEmpty());
+    editButton.setDisable(none || !service.canEdit(selected.requestId()));
+    statusButton.setDisable(none || service.allowedTransitions(selected.requestId()).isEmpty());
     detailsButton.setDisable(none);
-    deleteButton.setDisable(none);
+    deleteButton.setDisable(none || !service.canDelete(selected.requestId()));
   }
 }

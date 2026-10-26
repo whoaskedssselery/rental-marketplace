@@ -41,6 +41,7 @@ public class UsersController implements Refreshable, Exportable {
   @FXML private TableColumn<User, UserRole> roleColumn;
   @FXML private TableColumn<User, LocalDateTime> createdColumn;
   @FXML private Button editButton;
+  @FXML private Button addButton;
   @FXML private Button deleteButton;
   @FXML private Label countLabel;
   @FXML private Label listingsTitle;
@@ -55,6 +56,12 @@ public class UsersController implements Refreshable, Exportable {
 
   @FXML
   private void initialize() {
+    boolean admin = context.access().isAdmin();
+    addButton.setVisible(admin);
+    addButton.setManaged(admin);
+    deleteButton.setVisible(admin);
+    deleteButton.setManaged(admin);
+    roleColumn.setVisible(admin);
     Tables.column(idColumn, User::getId);
     Tables.column(nameColumn, User::getFullName);
     Tables.column(emailColumn, User::getEmail);
@@ -75,12 +82,15 @@ public class UsersController implements Refreshable, Exportable {
   public void refresh() {
     User selected = table.getSelectionModel().getSelectedItem();
     try {
-      items.setAll(service.getAllUsers());
+      items.setAll(service.getVisibleUsers());
     } catch (RuntimeException e) {
       Dialogs.error(UserMessages.of(e));
       return;
     }
     Tables.reselect(table, items, selected, User::getId);
+    if (!context.access().isAdmin()) {
+      table.getSelectionModel().selectFirst();
+    }
     table.setPlaceholder(
         new Label("Пользователей пока нет. Нажмите «Добавить», чтобы создать первого"));
     countLabel.setText("Пользователей: " + items.size());
@@ -115,6 +125,9 @@ public class UsersController implements Refreshable, Exportable {
 
   @FXML
   private void onAdd() {
+    if (!context.access().isAdmin()) {
+      return;
+    }
     FormLoader.Loaded<UserFormController> form =
         FormLoader.<UserFormController>load(context, "/fxml/user-form.fxml").orElse(null);
     if (form == null) {
@@ -137,7 +150,7 @@ public class UsersController implements Refreshable, Exportable {
   @FXML
   private void onEdit() {
     User selected = table.getSelectionModel().getSelectedItem();
-    if (selected == null) {
+    if (selected == null || !context.access().mayEdit(selected.getId())) {
       return;
     }
     FormLoader.Loaded<UserFormController> form =
@@ -146,6 +159,9 @@ public class UsersController implements Refreshable, Exportable {
       return;
     }
     form.controller().prepareForEdit(selected);
+    if (!context.access().isAdmin()) {
+      form.controller().lockRole();
+    }
     boolean saved =
         Dialogs.saveForm(
             "Пользователь №" + selected.getId(),
@@ -168,7 +184,7 @@ public class UsersController implements Refreshable, Exportable {
   @FXML
   private void onDelete() {
     User user = table.getSelectionModel().getSelectedItem();
-    if (user == null) {
+    if (user == null || !context.access().isAdmin()) {
       return;
     }
     boolean confirmed =
@@ -190,8 +206,8 @@ public class UsersController implements Refreshable, Exportable {
 
   private void onSelected() {
     User selected = table.getSelectionModel().getSelectedItem();
-    editButton.setDisable(selected == null);
-    deleteButton.setDisable(selected == null);
+    editButton.setDisable(selected == null || !context.access().mayEdit(selected.getId()));
+    deleteButton.setDisable(selected == null || !context.access().isAdmin());
     ownedListings.clear();
     rentedRequests.clear();
     if (selected == null) {

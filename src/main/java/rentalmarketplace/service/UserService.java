@@ -8,6 +8,7 @@ import rentalmarketplace.exception.EntityNotFoundException;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
 import rentalmarketplace.repository.UserRepository;
+import rentalmarketplace.security.AccessPolicy;
 
 public class UserService {
   private static final Pattern EMAIL_PATTERN =
@@ -17,33 +18,54 @@ public class UserService {
   private static final int PHONE_MAX_LENGTH = 30;
 
   private final UserRepository userRepository;
+  private final AccessPolicy access;
 
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, AccessPolicy access) {
     this.userRepository = userRepository;
+    this.access = access;
+  }
+
+  public AccessPolicy access() {
+    return access;
   }
 
   public User createUser(String fullName, String email, String phone, UserRole role) {
+    access.requireAdmin();
+    User user = validatedUser(fullName, email, phone, role);
+    checkEmailIsFree(email, null);
+    return userRepository.save(user);
+  }
+
+  static User validatedUser(String fullName, String email, String phone, UserRole role) {
     validateFullName(fullName);
     validateEmail(email);
     validatePhone(phone);
     validateRole(role);
-    checkEmailIsFree(email, null);
-    User user = new User(fullName.trim(), email.trim(), normalizePhone(phone), role);
-    return userRepository.save(user);
+    return new User(fullName.trim(), email.trim(), normalizePhone(phone), role);
   }
 
   public User getUserById(Integer id) {
+    access.currentUser();
     return userRepository
         .findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + id + " не найден"));
   }
 
   public List<User> getAllUsers() {
+    access.currentUser();
     return userRepository.findAll();
+  }
+
+  public List<User> getVisibleUsers() {
+    return access.isAdmin() ? getAllUsers() : List.of(access.currentUser());
   }
 
   public User updateUser(Integer id, String fullName, String email, String phone, UserRole role) {
     User existing = getUserById(id);
+    access.requireOwner(id);
+    if (!access.isAdmin() && role != existing.getRole()) {
+      throw new BusinessRuleException("Менять роль может только администратор");
+    }
     validateFullName(fullName);
     validateEmail(email);
     validatePhone(phone);
@@ -57,11 +79,12 @@ public class UserService {
   }
 
   public void deleteUser(Integer id) {
+    access.requireAdmin();
     getUserById(id);
     userRepository.deleteById(id);
   }
 
-  private void validateFullName(String fullName) {
+  private static void validateFullName(String fullName) {
     if (fullName == null || fullName.isBlank()) {
       throw new BusinessRuleException("Имя пользователя не может быть пустым");
     }
@@ -71,7 +94,7 @@ public class UserService {
     }
   }
 
-  private void validateEmail(String email) {
+  private static void validateEmail(String email) {
     if (email == null || !EMAIL_PATTERN.matcher(email.trim()).matches()) {
       throw new BusinessRuleException("Некорректный формат email: " + email);
     }
@@ -81,20 +104,20 @@ public class UserService {
     }
   }
 
-  private void validatePhone(String phone) {
+  private static void validatePhone(String phone) {
     if (phone != null && phone.trim().length() > PHONE_MAX_LENGTH) {
       throw new BusinessRuleException(
           "Телефон не может быть длиннее " + PHONE_MAX_LENGTH + " символов");
     }
   }
 
-  private void validateRole(UserRole role) {
+  private static void validateRole(UserRole role) {
     if (role == null) {
       throw new BusinessRuleException("Роль пользователя обязательна");
     }
   }
 
-  private String normalizePhone(String phone) {
+  private static String normalizePhone(String phone) {
     return phone == null || phone.isBlank() ? null : phone.trim();
   }
 

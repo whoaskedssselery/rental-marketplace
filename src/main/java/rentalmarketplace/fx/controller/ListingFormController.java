@@ -54,7 +54,11 @@ public class ListingFormController {
             return null;
           }
         });
-    ownerBox.setItems(FXCollections.observableArrayList(context.userService().getAllUsers()));
+    ownerBox.setItems(FXCollections.observableArrayList(context.userService().getVisibleUsers()));
+    if (!context.access().isAdmin()) {
+      ownerBox.setValue(context.access().currentUser());
+      ownerBox.setDisable(true);
+    }
     categoryBox.setItems(
         FXCollections.observableArrayList(context.listingService().getCategories()));
     availableBox.setSelected(true);

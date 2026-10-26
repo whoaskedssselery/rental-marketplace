@@ -23,7 +23,8 @@ class ListingServiceTest {
 
   @BeforeEach
   void setUp() {
-    UserService userService = new UserService(new FakeUserRepository());
+    UserService userService =
+        new UserService(new FakeUserRepository(), rentalmarketplace.security.TestAccess.admin());
     listingService = new ListingService(new FakeListingRepository(), userService);
     User owner = userService.createUser("Владелец", "owner@example.com", null, UserRole.OWNER);
     ownerId = owner.getId();

@@ -32,7 +32,8 @@ class StatisticsServiceTest {
 
   @BeforeEach
   void setUp() {
-    users = new UserService(new FakeUserRepository());
+    users =
+        new UserService(new FakeUserRepository(), rentalmarketplace.security.TestAccess.admin());
     listings = new ListingService(new FakeListingRepository(), users);
     requests = new RentalRequestService(new FakeRentalRequestRepository(), listings, users);
     reviews = new ReviewService(new FakeReviewRepository(), requests, listings, users);

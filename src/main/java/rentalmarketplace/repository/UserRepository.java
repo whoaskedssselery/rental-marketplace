@@ -8,12 +8,84 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import rentalmarketplace.exception.BusinessRuleException;
 import rentalmarketplace.exception.DatabaseAccessException;
 import rentalmarketplace.model.User;
 import rentalmarketplace.model.UserRole;
 import rentalmarketplace.util.DatabaseManager;
 
 public class UserRepository implements CrudRepository<User, Integer> {
+
+  public void ensureAuthenticationSchema() {
+    try (Connection connection = DatabaseManager.getConnection()) {
+      connection.setAutoCommit(false);
+      try (var statement = connection.createStatement()) {
+        statement.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT");
+        statement.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_key ON users (lower(email))");
+        connection.commit();
+      } catch (SQLException e) {
+        connection.rollback();
+        throw e;
+      }
+    } catch (SQLException e) {
+      throw new DatabaseAccessException(
+          "Не удалось обновить схему входа. Проверьте права БД и повторы email без учёта регистра",
+          e);
+    }
+  }
+
+  public User saveWithPassword(User user, String passwordHash) {
+    String sql =
+        "INSERT INTO users (full_name,email,phone,role,password_hash) VALUES (?,?,?,?,?) "
+            + "RETURNING id,created_at";
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setString(1, user.getFullName());
+      statement.setString(2, user.getEmail());
+      statement.setString(3, user.getPhone());
+      statement.setString(4, user.getRole().name());
+      statement.setString(5, passwordHash);
+      try (ResultSet result = statement.executeQuery()) {
+        result.next();
+        user.setId(result.getInt("id"));
+        user.setCreatedAt(result.getTimestamp("created_at").toLocalDateTime());
+      }
+      return user;
+    } catch (SQLException e) {
+      if ("23505".equals(e.getSQLState())) {
+        throw new BusinessRuleException("Этот email уже занят. Войдите в существующий аккаунт");
+      }
+      throw new DatabaseAccessException("Не удалось зарегистрировать аккаунт", e);
+    }
+  }
+
+  public Optional<String> findPasswordHash(Integer userId) {
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement =
+            connection.prepareStatement("SELECT password_hash FROM users WHERE id=?")) {
+      statement.setInt(1, userId);
+      try (ResultSet result = statement.executeQuery()) {
+        return result.next() ? Optional.ofNullable(result.getString(1)) : Optional.empty();
+      }
+    } catch (SQLException e) {
+      throw new DatabaseAccessException("Не удалось проверить пароль", e);
+    }
+  }
+
+  public void setInitialPassword(Integer userId, String passwordHash) {
+    try (Connection connection = DatabaseManager.getConnection();
+        PreparedStatement statement =
+            connection.prepareStatement(
+                "UPDATE users SET password_hash=? "
+                    + "WHERE id=? AND role='ADMIN' AND password_hash IS NULL")) {
+      statement.setString(1, passwordHash);
+      statement.setInt(2, userId);
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseAccessException("Не удалось задать пароль администратора", e);
+    }
+  }
 
   @Override
   public User save(User user) {

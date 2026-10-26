@@ -17,7 +17,7 @@
         <Insets top="12" right="12" bottom="12" left="12"/>
     </padding>
     <HBox alignment="CENTER_LEFT" spacing="8">
-        <Button text="Добавить" onAction="#onAdd" styleClass="primary-button"/>
+        <Button fx:id="addButton" text="Добавить" onAction="#onAdd" styleClass="primary-button"/>
         <Button fx:id="editButton" text="Изменить" onAction="#onEdit"
                 styleClass="secondary-button"/>
         <Button fx:id="deleteButton" text="Удалить" onAction="#onDelete"

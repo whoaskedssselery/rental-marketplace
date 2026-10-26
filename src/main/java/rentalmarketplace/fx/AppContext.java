@@ -7,6 +7,8 @@ import rentalmarketplace.repository.ListingRepository;
 import rentalmarketplace.repository.RentalRequestRepository;
 import rentalmarketplace.repository.ReviewRepository;
 import rentalmarketplace.repository.UserRepository;
+import rentalmarketplace.security.AccessPolicy;
+import rentalmarketplace.service.AuthenticationService;
 import rentalmarketplace.service.ExportService;
 import rentalmarketplace.service.ListingService;
 import rentalmarketplace.service.RentalRequestService;
@@ -16,6 +18,7 @@ import rentalmarketplace.service.StatisticsService;
 import rentalmarketplace.service.UserService;
 
 public class AppContext {
+  private final AuthenticationService authenticationService;
   private final UserService userService;
   private final ListingService listingService;
   private final RentalRequestService rentalRequestService;
@@ -25,7 +28,9 @@ public class AppContext {
   private final ExportService exportService = new ExportService();
 
   public AppContext() {
-    userService = new UserService(new UserRepository());
+    UserRepository users = new UserRepository();
+    authenticationService = new AuthenticationService(users);
+    userService = new UserService(users, new AccessPolicy(authenticationService::currentUser));
     listingService = new ListingService(new ListingRepository(), userService);
     rentalRequestService =
         new RentalRequestService(new RentalRequestRepository(), listingService, userService);
@@ -36,6 +41,14 @@ public class AppContext {
             new ReviewRepository(), rentalRequestService, listingService, userService);
     statisticsService =
         new StatisticsService(userService, listingService, rentalRequestService, reviewService);
+  }
+
+  public AuthenticationService authenticationService() {
+    return authenticationService;
+  }
+
+  public AccessPolicy access() {
+    return userService().access();
   }
 
   public UserService userService() {

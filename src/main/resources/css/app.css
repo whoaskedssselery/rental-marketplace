@@ -43,6 +43,19 @@
     -fx-font-weight: normal;
 }
 
+.auth-panel {
+    -fx-background-color: -app-surface;
+    -fx-padding: 32;
+    -fx-background-radius: 8;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 8;
+}
+
+.auth-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 500;
+}
+
 .page-title {
     -fx-font-size: 15px;
     -fx-font-weight: normal;
