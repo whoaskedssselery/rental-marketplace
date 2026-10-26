@@ -24,7 +24,9 @@
             <Button fx:id="exportButton" text="Экспорт" onAction="#onExport"
                     styleClass="secondary-button"/>
             <Label fx:id="currentUserLabel" minWidth="0" maxWidth="140"
-                   textOverrun="ELLIPSIS" styleClass="muted-text"/>
+                   textOverrun="ELLIPSIS" styleClass="muted-text">
+                <HBox.margin><Insets left="16"/></HBox.margin>
+            </Label>
             <Button fx:id="logoutButton" text="Выйти" onAction="#onLogout"
                     styleClass="quiet-button"/>
         </HBox>
